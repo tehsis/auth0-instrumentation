@@ -10,7 +10,7 @@
   "author": "Auth0",
   "license": "ISC",
   "dependencies": {
-    "auth0-common-logging": "github:auth0/auth0-common-logging#v2.16.1",
+    "auth0-common-logging": "auth0/auth0-common-logging#v2.18.0",
     "aws-kinesis-writable": "~4.0.0",
     "blocked": "^1.2.1",
     "bunyan": "^1.8.1",
