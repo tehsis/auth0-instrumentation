@@ -25,5 +25,24 @@ describe('logger', function() {
       assert(sentry.captureException.calledOnce === false);
       assert(sentry.captureMessage.calledOnce);
     });
+
+    it('should add a log_type tag when the log entry has an error and has a log_type property', function() {
+      logger.error({
+        log_type: 'uncaughtException',
+        err: new Error('test err')
+      }, 'test');
+      assert(sentry.captureException.calledOnce);
+      assert(sentry.captureMessage.calledOnce === false);
+      assert(sentry.captureException.getCall(0).args[1].tags.log_type, 'uncaughtException');
+    });
+
+    it('should add a log_type tag when the log entry does not have an error and has a log_type property', function() {
+      logger.error({
+        log_type: 'not really an error'
+      }, 'test');
+      assert(sentry.captureException.calledOnce === false);
+      assert(sentry.captureMessage.calledOnce);
+      assert(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
+    });
   });
 });
