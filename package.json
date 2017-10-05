@@ -14,10 +14,10 @@
     "aws-kinesis-writable": "~4.0.0",
     "blocked": "^1.2.1",
     "bunyan": "^1.8.1",
-    "bunyan-sentry-stream": "^1.0.2",
     "datadog-metrics": "^0.3.0",
     "gc-stats": "^1.0.2",
     "lodash.debounce": "^4.0.8",
+    "lodash.omit": "^4.5.0",
     "moment": "^2.18.1",
     "ms": "^2.0.0",
     "node-statsd": "^0.1.1",
@@ -30,6 +30,7 @@
     "mocha": "^2.4.5",
     "nsp": "^2.5.0",
     "mockuire": "^0.1.0",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "yargs": "^9.0.1"
   }
 }
