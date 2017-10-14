@@ -14,7 +14,7 @@ describe('Profiler', function() {
         info: sinon.spy()
       }
     };
-    profiler = new Profiler(agent, {name: 'test'}, {HUNT_MEMORY_LEAKS: true});
+    profiler = new Profiler(agent, { name: 'test' }, { HUNT_MEMORY_LEAKS: true });
     // avoid having to create workers
     process.send = function() {};
   });
@@ -25,10 +25,20 @@ describe('Profiler', function() {
     it('should create a snapshot and log', function(done) {
       this.timeout(3000);
       profiler.createDebouncedSnapshot('testing');
-      setInterval(() => {
+      setTimeout(() => {
         assert(agent.logger.info.calledOnce);
         done();
       }, 1000);
+    });
+  });
+  describe('#createProfile', function() {
+    it('should create a profile', function(done) {
+      this.timeout(3000);
+      profiler.createProfile(1000, function(err, path) {
+        assert.ifError(err);
+        assert(path);
+        done();
+      });
     });
   });
 });
