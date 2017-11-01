@@ -15,8 +15,6 @@ describe('Profiler', function() {
       }
     };
     profiler = new Profiler(agent, {name: 'test'}, {HUNT_MEMORY_LEAKS: true});
-    // avoid having to create workers
-    process.send = function() {};
   });
   afterEach(function() {
     process.send = undefined;
