@@ -190,3 +190,9 @@ const env = {
   'METRICS_FLUSH_INTERVAL': 15 // seconds
 };
 ```
+
+## Docker Testing
+To test `auth0-instrumentation` locally in a simple container simply run
+```sh
+docker-compose up && docker-compose rm -f
+```

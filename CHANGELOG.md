@@ -1,4 +1,12 @@
 # Changelog
+<a name="v2.10.0"></a>
+# v2.10.0
+### Infrastructure Changes
+* `init()` is now idempotent. [#77](https://github.com/auth0/auth0-instrumentation/pull/77)
+* Support for Bunyan child loggers added [#76](https://github.com/auth0/auth0-instrumentation/pull/76)
+* Added a `createProfile()` method on `Profile` [#72](https://github.com/auth0/auth0-instrumentation/pull/72)
+* Fixed an issue in which agents could be leaked [#78](https://github.com/auth0/auth0-instrumentation/pull/78)
+
 <a name="v2.9.2"></a>
 # v2.9.2
 ### Infrastructure Changes
