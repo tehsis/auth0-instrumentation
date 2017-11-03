@@ -4,10 +4,9 @@ const assert = require('assert');
 
 const stubs = require('../lib/stubs');
 const utils = require('../lib/utils');
-const logFormatter = utils.logFormatter;
+const decorateLogger = utils.decorateLogger;
 const loggerStub = stubs.logger;
 
-const captureLog = logFormatter(loggerStub);
 const levels = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
 
 const spy = require('sinon').spy;
@@ -17,13 +16,8 @@ levels.forEach(function(lvl) {
 });
 
 describe('Utils', function() {
-  describe('logFormatter', function() {
-    var logger = {};
-    before(function() {
-      levels.forEach(function(lvl) {
-        logger[lvl] = captureLog(lvl);
-      });
-    });
+  describe('decorateLogger', function() {
+    var logger = decorateLogger(loggerStub);
 
     afterEach(function() {
       levels.forEach(function(lvl) {

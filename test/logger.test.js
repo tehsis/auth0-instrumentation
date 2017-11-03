@@ -13,6 +13,41 @@ describe('logger', function() {
     sentry.captureMessage.reset();
   });
 
+  describe('logger.child()', function() {
+    it('should support creating child loggers', function() {
+      const childLogger = logger.child({
+        child: 'child'
+      });
+
+      childLogger.error({
+        log_type: 'not really an error'
+      }, 'test');
+      assert(sentry.captureException.calledOnce === false);
+      assert(sentry.captureMessage.calledOnce);
+      assert(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
+      assert(sentry.captureMessage.getCall(0).args[1].extra.child, 'child');
+    });
+
+    it('should support creating nested child loggers', function() {
+      const childLogger = logger.child({
+        child: 'child'
+      });
+      const grandChildLogger = childLogger.child({
+        child: 'grandchild',
+        parent: 'child',
+      });
+
+      grandChildLogger.error({
+        log_type: 'not really an error'
+      }, 'test');
+      assert(sentry.captureException.calledOnce === false);
+      assert(sentry.captureMessage.calledOnce);
+      assert(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
+      assert(sentry.captureMessage.getCall(0).args[1].extra.child, 'grandchild');
+      assert(sentry.captureMessage.getCall(0).args[1].extra.parent, 'child');
+    });
+  });
+
   describe('SentryStream', function() {
     it('should call captureException on error when level is error', function() {
       logger.error(new Error('test'));
