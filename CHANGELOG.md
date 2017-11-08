@@ -1,4 +1,10 @@
 # Changelog
+<a name="v2.10.1"></a>
+# v2.10.1
+### Infrastructure Changes
+* Bumped the version of `kinesis-transport` to `v4.0.2`, which prevent undefined calls when writing records
+to Kinesis
+
 <a name="v2.10.0"></a>
 # v2.10.0
 ### Infrastructure Changes
