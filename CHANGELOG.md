@@ -1,6 +1,6 @@
 # Changelog
 <a name="v2.10.2"></a>
-# v2.10.1
+# v2.10.2
 ### Infrastructure Changes
 * Bumped the version of `kinesis-writable` to `v4.1.0`.
 * Support for STS Session Token on Kinesis instantiation.
