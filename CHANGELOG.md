@@ -1,6 +1,11 @@
 # Changelog
+<a name="v2.11.1"></a>
+# v2.11.1
+### Bug Fix
+* Upgrade `kinesis-writable` to `v4.1.2`
+
 <a name="v2.11.0"></a>
-# v2.11.0
+# v2.11.0 - BROKEN
 ### Bug Fix
 * Avoid caching wrong HTTP(s) agent
 
@@ -11,12 +16,12 @@
 * Support for STS Session Token on Kinesis instantiation.
 
 <a name="v2.10.1"></a>
-# v2.10.1
+# v2.10.1 - BROKEN
 ### Infrastructure Changes
 * Bumped the version of `kinesis-writable` to `v4.0.2`, which prevent undefined calls when writing records to Kinesis.
 
 <a name="v2.10.0"></a>
-# v2.10.0
+# v2.10.0 - BROKEN
 ### Infrastructure Changes
 * `init()` is now idempotent. [#77](https://github.com/auth0/auth0-instrumentation/pull/77)
 * Support for Bunyan child loggers added [#76](https://github.com/auth0/auth0-instrumentation/pull/76)
