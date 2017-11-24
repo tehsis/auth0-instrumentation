@@ -1,6 +1,11 @@
 # Changelog
+<a name="v2.11.0"></a>
+# v2.11.0
+### Bug Fix
+* Avoid caching wrong HTTP(s) agent
+
 <a name="v2.10.2"></a>
-# v2.10.2
+# v2.10.2 - BROKEN
 ### Infrastructure Changes
 * Bumped the version of `kinesis-writable` to `v4.1.0`.
 * Support for STS Session Token on Kinesis instantiation.
