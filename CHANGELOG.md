@@ -1,4 +1,10 @@
 # Changelog
+<a name="v2.11.2"></a>
+# v2.11.2
+### Bug Fix
+* Force a partitionKey
+* Fix `gc-stats` to `v1.0.2`
+
 <a name="v2.11.1"></a>
 # v2.11.1
 ### Bug Fix
