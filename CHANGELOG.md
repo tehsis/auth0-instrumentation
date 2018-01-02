@@ -1,4 +1,10 @@
 # Changelog
+<a name="v2.11.3"></a>
+# v2.11.3
+### Infrastructure Changes
+* Support for full credentials object to Kinesis
+* Upgrade `kinesis-writable` to `v4.1.3`
+
 <a name="v2.11.2"></a>
 # v2.11.2
 ### Bug Fix
