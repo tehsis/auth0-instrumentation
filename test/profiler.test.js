@@ -18,19 +18,22 @@ describe('Profiler', function() {
     // avoid having to create workers
     process.send = function() {};
   });
+
   afterEach(function() {
     process.send = undefined;
   });
-  describe('#createDebouncedSnapshot', function() {
+
+  describe('#createThrottledSnapshot', function() {
     it('should create a snapshot and log', function(done) {
       this.timeout(3000);
-      profiler.createDebouncedSnapshot('testing');
+      profiler.createThrottledSnapshot('testing');
       setTimeout(() => {
         assert(agent.logger.info.calledOnce);
         done();
       }, 1000);
     });
   });
+
   describe('#createProfile', function() {
     it('should create a profile', function(done) {
       this.timeout(3000);
