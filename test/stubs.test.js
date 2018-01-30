@@ -31,6 +31,13 @@ describe('stubs', function() {
       done();
     });
 
+    it('should have a hapi v17 plugin', function(done) {
+      assert.doesNotThrow(function() {
+        errorReporter.hapi.pluginV17.pkg.name;
+      }, TypeError);
+      done();
+    });
+
     it('should have an express plugin', function(done) {
       assert.doesNotThrow(function() {
         errorReporter.express.requestHandler;
