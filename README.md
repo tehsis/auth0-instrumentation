@@ -82,6 +82,17 @@ agent.errorReporter.captureException('My error', {
 });
 ```
 
+For `hapi` version 17 and above there's a specific plugin for this. You may satup this using:
+
+```js
+var hapi = require('hapi');
+var server = new hapi.Server();
+agent.init(pkg, env);
+
+await server.register(agent.errorReporter.hapi.pluginV17);
+```
+
+
 ## Express
 
 For `express`, the error reporter is composed of two middlewares. To use it, you can do something like this:
