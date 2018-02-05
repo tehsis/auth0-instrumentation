@@ -1,4 +1,11 @@
 # Changelog
+<a name="v2.11.4"></a>
+# v2.11.4
+### Infrastructure Changes
+* Introduced `CONSOLE_NICE_FORMAT`
+* Replaced `debounce` with `lodash.throttle@4.1.1`
+* https://github.com/auth0/auth0-instrumentation/compare/v2.11.3...v2.11.4
+
 <a name="v2.11.3"></a>
 # v2.11.3
 ### Infrastructure Changes
