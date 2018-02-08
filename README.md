@@ -82,7 +82,7 @@ agent.errorReporter.captureException('My error', {
 });
 ```
 
-For `hapi` version 17 and above there's a specific plugin for this. You may satup this using:
+For `hapi` version 17 and above there's a specific plugin for this. You may setup this using:
 
 ```js
 var hapi = require('hapi');
