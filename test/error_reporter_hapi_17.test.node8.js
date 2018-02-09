@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const assert = require('assert');
 const hapiPluginBuilder = require('../lib/hapi_plugin_builder');
 
-describe('error reporter with Hapi server >= v17', function () {
+describe('error reporter with Hapi server >= v17 - NODE8', function () {
   var server;
   var error = new Error();
   var ravenClient = { captureError: sinon.stub() };

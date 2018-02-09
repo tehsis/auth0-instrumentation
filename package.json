@@ -4,7 +4,7 @@
   "description": "Instrumentation for logs, metrics, and exceptions",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha ${MOCHA_ARGS}"
   },
   "private": true,
   "author": "Auth0",
