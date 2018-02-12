@@ -7,7 +7,6 @@ describe('error reporter with Hapi server < v17', function () {
   var server;
   var ravenClient = { captureError: sinon.stub() };
   var error = new Error();
-  var w = false;
   before(function(done) {
     server = new Hapi16.Server();
     server.connection({ port: 9879 });
@@ -28,15 +27,14 @@ describe('error reporter with Hapi server < v17', function () {
     };
     server.start(function(err) {
       if (err) {
-        console.log('Failed to load Hapi plugin');
+        done('Failed to load Hapi plugin');
       }
-      w = true;
       done();
     });
 
     server.register(plugin, function(err) {
       if (err) {
-        console.log('Failed to load Hapi plugin');
+        done('Failed to load Hapi plugin');
       }
     });
   });

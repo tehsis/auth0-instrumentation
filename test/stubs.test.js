@@ -33,7 +33,7 @@ describe('stubs', function() {
 
     it('should have a hapi v17 plugin', function(done) {
       assert.doesNotThrow(function() {
-        errorReporter.hapi.pluginV17.pkg.name;
+        errorReporter.hapi.plugin.pkg.name;
       }, TypeError);
       done();
     });

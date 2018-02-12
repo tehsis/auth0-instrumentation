@@ -3,7 +3,7 @@ const sinon = require('sinon');
 const assert = require('assert');
 const hapiPluginBuilder = require('../lib/hapi_plugin_builder');
 
-describe('error reporter with Hapi server >= v17 - NODE8', function () {
+describe('error reporter with Hapi server >= v17', function () {
   var server;
   var error = new Error();
   var ravenClient = { captureError: sinon.stub() };
@@ -50,8 +50,6 @@ describe('error reporter with Hapi server >= v17 - NODE8', function () {
     assert(secondParam.extra.remoteAddress === '127.0.0.1', 'remote address must be 127.0.0.1');
     assert(secondParam.extra.userAgent === 'shot', 'user agent must be shot');
     assert(secondParam.tags === 't1', 'tags must be t1');
-
-
   });
 
 });
