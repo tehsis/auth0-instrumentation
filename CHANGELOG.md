@@ -1,4 +1,10 @@
 # Changelog
+<a name="v2.12.0"></a>
+# v2.12.0
+### Infrastructure Changes
+* Supports `hapi v17` via a factory method.
+* https://github.com/auth0/auth0-instrumentation/compare/v2.11.4...v2.12.0
+
 <a name="v2.11.4"></a>
 # v2.11.4
 ### Infrastructure Changes
