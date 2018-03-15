@@ -52,6 +52,26 @@ metrics.increment('some.other.thing', 5, tags); // increment by 5
 metrics.histogram('service.time', 0.248);
 ```
 
+### Metric sampling
+
+You can set up a sampling rate for any given service by setting up `env.SAMPLING_RATE`; you can override that in any given metrics-collection call by passing the tag `sampling_rate`. Example:
+
+```js
+var pkg = require('./package.json');
+var env = require('./lib/env');
+env.SAMPLING_RATE = 80;
+var agent = require('auth0-instrumentation');
+agent.init(pkg, env);
+var metrics = agent.metrics;
+
+// 80% of these metrics calls should go through, as per env.SAMPLING_RATE
+metrics.increment('requests.served', {'http-status':200});
+
+// all of these metrics calls should go through; we care more about errors
+// than successful scenarios, in this case
+metrics.increment('requests.served', {'http-status':500, 'sampling_rate':100});
+```
+
 ## Errors
 
 You can use the error reporter to send exceptions to an external service. You can set it up on your app in three ways, depending on what framework is being used.
