@@ -1,4 +1,10 @@
 # Changelog
+<a name="v2.12.1"></a>
+# v2.12.1
+### Buf Fix
+* Avoid pushing debug/info logs to Sentry as exceptions
+* https://github.com/auth0/auth0-instrumentation/compare/v2.12.0...v2.12.1
+
 <a name="v2.12.0"></a>
 # v2.12.0
 ### Infrastructure Changes
