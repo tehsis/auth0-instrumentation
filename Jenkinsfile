@@ -30,7 +30,7 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh 'npm install'
+        sh 'yarn --ignore-engines'
       }
     }
     stage('Publish') {
