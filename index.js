@@ -12,13 +12,20 @@ module.exports = {
   profiler: stubs.profiler,
   initialized: false,
 
-  init: function(pkg, env, serializers) {
-    if (!this.initialized) {
-      this.logger = Logger(pkg, env, serializers);
-      this.errorReporter = ErrorReporter(pkg, env);
-      this.metrics = Metrics(pkg, env);
-      this.profiler = new Profiler(this, pkg, env);
-      this.initialized = true;
+  init: function(pkg, env, serializers, params) {
+    if (this.initialized) { return; }
+
+    this.logger = Logger(pkg, env, serializers);
+    this.errorReporter = ErrorReporter(pkg, env);
+    this.metrics = Metrics(pkg, env);
+    this.profiler = new Profiler(this, pkg, env);
+    this.initialized = true;
+
+    if (params && params.fileRotationSignal && env.LOG_FILE) {
+      process.on(params.fileRotationSignal, () => {
+        this.logger.reopenFileStreams();
+        this.logger.info('The log file has been rotated.');
+      });
     }
   }
 };
