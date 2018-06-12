@@ -99,6 +99,11 @@ describe('stubs', function() {
       assert.doesNotThrow(metrics.startResourceCollection, TypeError);
       done();
     });
+
+    it('should run incrementOne without throwing', function(done) {
+      assert.doesNotThrow(metrics.incrementOne, TypeError);
+      done();
+    });
   });
 
   describe('logger', function() {
