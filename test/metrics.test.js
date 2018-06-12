@@ -1,4 +1,6 @@
 var assert = require('assert');
+var sinon  = require('sinon');
+var $require = require('proxyquire').noPreserveCache();
 
 var metrics = require('../lib/metrics')({
   name: 'test'
@@ -93,5 +95,38 @@ describe('metrics', function() {
       done();
     });
 
+  });
+
+  describe('incrementOne', function() {    
+    var $metrics;
+    var metricsSpy;
+    beforeEach(function () {
+      metricsSpy = sinon.spy();
+      $metrics = $require('../lib/metrics', {
+        './metrics_factory': {
+          create: function(){
+            return { increment: metricsSpy };
+          }
+        }
+      })({
+        name: 'test'
+      }, {
+        STATSD_HOST: 'http://localhost:8125'
+      });
+    });
+
+    describe('when called with name', function() {      
+      it('should call metrics.increment with name and value 1', function() {
+        $metrics.incrementOne('foobar', undefined);
+        sinon.assert.calledWithMatch(metricsSpy, 'foobar', 1, []);
+      });
+    });
+
+    describe('when called with name and tags', function() {
+      it('should call metrics.increment with name, tags and value 1', function() {
+        $metrics.incrementOne('foobar', ['bar', 'foo']);
+        sinon.assert.calledWithMatch(metricsSpy, 'foobar', 1, ['bar', 'foo']);
+      });
+    });
   });
 });
