@@ -6,4 +6,4 @@ services:
     container_name: auth0-instrumentation
     volumes:
       - ./:/app
-    command: /bin/sh -c "cd /app; npm install && npm test"
+    command: /bin/sh -c "cd /app; yarn install && yarn test"
