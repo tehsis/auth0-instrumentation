@@ -2,7 +2,12 @@
 
 const assert = require('assert');
 const sentry = require('../lib/error_reporter')({}, {});
-const logger = require('../lib/logger')({ name: 'test' }, { LOG_LEVEL: 'fatal' });
+const logger = require('../lib/logger')({ name: 'test' }, 
+                                        { LOG_LEVEL: 'fatal', 
+                                          PURPOSE: 'test-purpose',
+                                          ENVIRONMENT: 'test-env',
+                                          AWS_REGION: 'test-region'
+                                        });
 const spy = require('sinon').spy;
 
 describe('logger', function() {
@@ -80,4 +85,15 @@ describe('logger', function() {
       assert(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
     });
   });
+
+  it('should add default values from environment', function() {
+    logger.error('testing');
+    assert(sentry.captureException.calledOnce === false);
+    assert(sentry.captureMessage.calledOnce);
+    const captured = sentry.captureMessage.getCall(0).args[1];
+    assert.equal(captured.extra.purpose, 'test-purpose');
+    assert.equal(captured.extra.environment, 'test-env');
+    assert.equal(captured.extra.region, 'test-region');
+  });
+
 });
