@@ -129,4 +129,38 @@ describe('metrics', function() {
       });
     });
   });
+
+  describe('observeBucketed', function() {
+    var $metrics;
+    var metricsSpy;
+    beforeEach(function () {
+      metricsSpy = sinon.spy();
+      $metrics = $require('../lib/metrics', {
+        './metrics_factory': {
+          create: function(){
+            return { increment: metricsSpy };
+          }
+        }
+      })({
+        name: 'test'
+      }, {
+        STATSD_HOST: 'http://localhost:8125'
+      });
+    });
+
+    it('should assign tags based on buckets', function() {
+      $metrics.observeBucketed('foobar', 34, [20, 50, 100], []);
+      sinon.assert.calledWith(metricsSpy, 'foobar', 1, sinon.match.array.contains(['le:50', 'le:100', 'le:Inf']));
+    });
+
+    it('should always set the Inf tag', function() {
+      $metrics.observeBucketed('foobar', 200, [20], []);
+      sinon.assert.calledWith(metricsSpy, 'foobar', 1, sinon.match.array.contains(['le:Inf']));
+    });
+
+    it('should preserve existing tags', function() {
+      $metrics.observeBucketed('foobar', 95, [20, 50, 100], ['tag1', 'tag2:val2']);
+      sinon.assert.calledWith(metricsSpy, 'foobar', 1, sinon.match.array.contains(['le:100', 'le:Inf', 'tag1', 'tag2:val2']));
+    });
+  });
 });

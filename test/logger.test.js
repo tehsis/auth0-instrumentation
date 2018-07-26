@@ -14,8 +14,8 @@ describe('logger', function() {
   beforeEach(function() {
     sentry.captureException = spy();
     sentry.captureMessage = spy();
-    sentry.captureException.reset();
-    sentry.captureMessage.reset();
+    sentry.captureException.resetHistory();
+    sentry.captureMessage.resetHistory();
   });
 
   describe('logger.child()', function() {
