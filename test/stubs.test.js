@@ -104,6 +104,11 @@ describe('stubs', function() {
       assert.doesNotThrow(metrics.incrementOne, TypeError);
       done();
     });
+
+    it('should run observeBucketed without throwing', function(done) {
+      assert.doesNotThrow(metrics.observeBucketed, TypeError);
+      done();
+    });
   });
 
   describe('logger', function() {
