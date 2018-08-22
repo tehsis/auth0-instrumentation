@@ -1,21 +1,12 @@
 const assert = require('assert');
 const opentracing = require('opentracing');
-const $require = require('proxyquire').noPreserveCache();
 
 describe('tracer', function() {
   var $mock;
   var $tracer;
   beforeEach(function() {
-    $tracer = $require('../lib/tracer', {
-      './tracer_factory': {
-        create: function() {
-          $mock = new opentracing.MockTracer();
-          return $mock;
-        }
-      }
-    })({
-      name: 'test'
-    });
+    $mock = new opentracing.MockTracer();
+    $tracer = require('../lib/tracer')({}, {}, {}, $mock);
   });
 
   describe('when wrapped', function() {
@@ -95,21 +86,6 @@ describe('tracer', function() {
       const child = report.firstSpanWithTagValue($tracer.Tags.ERROR, true);
       assert.ok(child);
       assert.equal('child_operation', child.operationName());
-    });
-  });
-
-  describe('captured async functions', function() {
-    it('should automatically create spans', function(done) {
-      const parentSpan = $tracer.startSpan('parent');
-      $tracer.captureAsync('async_child', function(span) {
-        setTimeout(() => {
-          span.finish();
-          parentSpan.finish();
-          const report = $mock.report();
-          assert.equal(2, report.spans.length);
-          done();
-        }, 500);
-      }, parentSpan);
     });
   });
 });
