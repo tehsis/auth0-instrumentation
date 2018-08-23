@@ -4,6 +4,7 @@ var agent = require('../');
 var errorReporter = agent.errorReporter;
 var metrics = agent.metrics;
 var logger = agent.logger;
+var tracer = agent.tracer;
 
 describe('stubs', function() {
 
@@ -143,6 +144,48 @@ describe('stubs', function() {
       done();
     });
 
+  });
+
+  describe('tracer', function() {
+    it('should run startSpan without throwing', function() {
+      assert.doesNotThrow(tracer.startSpan, Error);
+    });
+
+    it('should run inject without throwing', function() {
+      assert.doesNotThrow(tracer.inject, Error);
+    });
+
+    it('should run extract without throwing', function() {
+      assert.doesNotThrow(tracer.extract, Error);
+    });
+
+    const span = tracer.startSpan('foo');
+    describe('tracer', function() {
+
+      it('should run finish without throwing', function() {
+        assert.doesNotThrow(span.finish, Error);
+      });
+
+      it('should run setTag without throwing', function() {
+        assert.doesNotThrow(span.setTag, Error);
+      });
+
+      it('shoudl run addTags without throwing', function() {
+        assert.doesNotThrow(span.addTags, Error);
+      });
+
+      it('should run tracer without throwing', function() {
+        assert.doesNotThrow(span.tracer, Error);
+      });
+
+      it('should run context wihout throwing', function() {
+        assert.doesNotThrow(span.context, Error);
+      });
+
+      it('should run setOperationName without throwing', function() {
+        assert.doesNotThrow(span.setOperationName, Error);
+      });
+    });
   });
 
 });
