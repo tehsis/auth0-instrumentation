@@ -237,7 +237,8 @@ const env = {
 
   // Tracing configuration
   'TRACE_AGENT_CLIENT': undefined, // e.g. 'jaeger'
-  'TRACE_AGENT_HOST': 'udp://localhost:6831'
+  'TRACE_AGENT_HOST': 'localhost',
+  'TRACE_AGENT_PORT': 6832
 };
 ```
 

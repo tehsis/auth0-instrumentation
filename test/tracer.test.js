@@ -23,6 +23,7 @@ describe('tracer stub', function() {
     it('should define auth0 specific tags', function() {
       assert.hasOwnProperty($tracer.Tags, 'AUTH0_TENANT');
       assert.hasOwnProperty($tracer.Tags, 'AUTH0_ENVIRONMENT');
+      assert.hasOwnProperty($tracer.Tags, 'AUTH0_REGION');
       assert.hasOwnProperty($tracer.Tags, 'AUTH0_CHANNEL');
     });
   });
@@ -98,7 +99,8 @@ describe('tracer using jaeger-client', function() {
       name: 'auth0-service'
     }, {
       TRACE_AGENT_CLIENT: 'jaeger',
-      TRACE_AGENT_HOST: 'udp://localhost:6831'
+      TRACE_AGENT_HOST: 'jaeger.auth0.net',
+      TRACE_AGENT_PORT: 6831
     });
   });
 
@@ -112,8 +114,9 @@ describe('tracer using jaeger-client', function() {
     });
 
     it('should send spans to the right location', function() {
-      assert.equal($tracer._tracer._reporter._sender._host, 'udp://localhost:6831');
-    })
+      assert.equal($tracer._tracer._reporter._sender._host, 'jaeger.auth0.net');
+      assert.equal($tracer._tracer._reporter._sender._port, 6831);
+    });
 
     it('should contain standard format definitions', function() {
       assert.equal($tracer.FORMAT_HTTP_HEADERS, opentracing.FORMAT_HTTP_HEADERS);
@@ -128,6 +131,7 @@ describe('tracer using jaeger-client', function() {
     it('should define auth0 specific tags', function() {
       assert.hasOwnProperty($tracer.Tags, 'AUTH0_TENANT');
       assert.hasOwnProperty($tracer.Tags, 'AUTH0_ENVIRONMENT');
+      assert.hasOwnProperty($tracer.Tags, 'AUTH0_REGION');
       assert.hasOwnProperty($tracer.Tags, 'AUTH0_CHANNEL');
     });
   });
