@@ -99,8 +99,7 @@ describe('tracer express middleware', function() {
     var $mock;
     var $tracer;
     var app;
-    var server;
-    beforeEach(function(done) {
+    beforeEach(function() {
       $mock = new opentracing.MockTracer();
       // the mock tracer doesn't native support extract/inject.
       $mock.inject = function(span, format, carrier) {
@@ -116,11 +115,6 @@ describe('tracer express middleware', function() {
       app.get('/error', function(req, res) {
         res.status(500).send('error');
       });
-      server = app.listen(0, done);
-    });
-
-    afterEach(function(done) {
-      server.close(done);
     });
 
     it('should create new child spans', function(done) {
@@ -141,7 +135,7 @@ describe('tracer express middleware', function() {
     });
 
     it('should set error tags on failure', function(done) {
-      request(server)
+      request(app)
         .get('/error')
         .expect(500)
         .expect(function() {
@@ -163,7 +157,7 @@ describe('tracer express middleware', function() {
       request(app)
         .get('/success')
         .expect(200)
-        .expect(res => {
+        .expect(function(res) {
           const report = $mock.report();
           assert.equal(1, report.spans.length);
           const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
