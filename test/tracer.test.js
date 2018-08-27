@@ -1,5 +1,8 @@
 const assert = require('assert');
 const opentracing = require('opentracing');
+const express = require('express');
+const request = require('supertest');
+const sinon = require('sinon');
 
 describe('tracer stub', function() {
   var $mock;
@@ -91,6 +94,120 @@ describe('tracer stub', function() {
   });
 });
 
+describe('tracer express middleware', function() {
+  describe('middleware with stubs', function() {
+    var $mock;
+    var $tracer;
+    var app;
+    beforeEach(function() {
+      $mock = new opentracing.MockTracer();
+      // the mock tracer doesn't native support extract/inject.
+      $mock.inject = function(span, format, carrier) {
+        carrier['x-span-id'] = span.uuid();
+      };
+      $mock.extract = sinon.fake();
+      $tracer = require('../lib/tracer')({}, {}, {}, $mock);
+      app = express();
+      app.use($tracer.middleware.express);
+      app.get('/success', function(req, res) {
+        res.status(200).send('ok');
+      });
+      app.get('/error', function(req, res) {
+        res.status(500).send('error');
+      });
+      app.get('/exception', function() {
+        throw new Error('expected');
+      });
+      app.get('/moreinfo', function(req, res) {
+        req.a0trace.span.setTag('moreinfo', 'here');
+        res.status(200).send('ok');
+      });
+    });
+
+    it('should create new child spans', function(done) {
+      request(app)
+        .get('/success')
+        .expect(200)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(child);
+          assert.equal('/success', child.operationName());
+          assert.equal('GET', child.tags()[$tracer.Tags.HTTP_METHOD]);
+          assert.equal($tracer.Tags.SPAN_KIND_RPC_SERVER, child.tags()[$tracer.Tags.SPAN_KIND]);
+        })
+        .then(() =>  { done(); })
+        .catch(err => { done(err); });
+    });
+
+    it('should make the created span available to the request', function(done) {
+      request(app)
+        .get('/moreinfo')
+        .expect(200)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          assert.ok(report.firstSpanWithTagValue('moreinfo', 'here'));
+        })
+        .then(() => { done(); })
+        .catch(err => { done(err); });
+
+    });
+
+    it('should set error tags on status codes >= 500', function(done) {
+      request(app)
+        .get('/error')
+        .expect(500)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 500);
+          assert.ok(child);
+          assert.equal('/error', child.operationName());
+          assert.equal('GET', child.tags()[$tracer.Tags.HTTP_METHOD]);
+          assert.equal($tracer.Tags.SPAN_KIND_RPC_SERVER, child.tags()[$tracer.Tags.SPAN_KIND]);
+          assert.ok(child.tags()[$tracer.Tags.ERROR]);
+        })
+        .then(() => { done(); })
+        .catch(err => { done(err); });
+        
+    });
+
+    it('should set error tags on exceptions', function(done) {
+      request(app)
+        .get('/exception')
+        .expect(500)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 500);
+          assert.ok(child);
+          assert.equal('/exception', child.operationName());
+          assert.equal('GET', child.tags()[$tracer.Tags.HTTP_METHOD]);
+          assert.equal($tracer.Tags.SPAN_KIND_RPC_SERVER, child.tags()[$tracer.Tags.SPAN_KIND]);
+          assert.ok(child.tags()[$tracer.Tags.ERROR]);
+        })
+        .then(() => { done(); })
+        .catch(err => { done(err); });
+    });
+
+    it('should include span headers in the response', function(done) {
+      request(app)
+        .get('/success')
+        .expect(200)
+        .expect(function(res) {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(child);
+          assert.equal(child.uuid(), res.get('x-span-id'));
+        })
+        .then(() => { done(); })
+        .catch(err => { done(err); });
+    });
+  });
+});
 
 describe('tracer using jaeger-client', function() {
   var $tracer;
