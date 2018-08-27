@@ -1,5 +1,8 @@
 const assert = require('assert');
 const opentracing = require('opentracing');
+const express = require('express');
+const request = require('supertest');
+const sinon = require('sinon');
 
 describe('tracer', function() {
   var $mock;
@@ -88,4 +91,77 @@ describe('tracer', function() {
       assert.equal('child_operation', child.operationName());
     });
   });
+});
+
+describe('tracer express middleware', function() {
+  describe('middleware with stubs', function() {
+    var $mock;
+    var $tracer;
+    var app;
+    beforeEach(function() {
+      $mock = new opentracing.MockTracer();
+      // the mock tracer doesn't native support extract/inject.
+      $mock.inject = function(span, format, carrier) {
+        carrier['x-span-id'] = span.uuid();
+      };
+      $mock.extract = sinon.fake();
+      $tracer = require('../lib/tracer')({}, {}, {}, $mock);
+      app = express();
+      app.use($tracer.middleware.express);
+      app.get('/success', function(req, res) {
+        res.status(200);
+      });
+      app.get('/error', function(req, res) {
+        res.status(500);
+      });
+    });
+
+    it('should create new child spans', function(done) {
+      request(app)
+        .get('/success')
+        .expect(200)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS, 200);
+          assert.ok(child);
+          assert.equal('/success', child.operationName());
+          assert.equal('get', child.tags()[$tracer.Tags.HTTP_METHOD]);
+          assert.equal($tracer.Tags.SPAN_KIND_RPC_SERVER, child.tags()[$tracer.Tags.SPAN_KIND]);
+        });
+      done();
+    });
+
+    it('should set error tags on failure', function(done) {
+      request(app)
+        .get('/failure')
+        .expect(500)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS, 500);
+          assert.ok(child);
+          assert.equal('/failure', child.operationName());
+          assert.equal('get', child.tags()[$tracer.Tags.HTTP_METHOD]);
+          assert.equal($tracer.Tags.SPAN_KIND_RPC_SERVER, child.tags()[$tracer.Tags.SPAN_KIND]);
+          assert.ok(child.tags()[$tracer.Tags.ERROR]);
+        });
+      done();
+    });
+
+    it('should include span headers in the response', function(done) {
+      request(app)
+        .get('/success')
+        .expect(200)
+        .expect(function(res) {
+          const resport = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS, 200);
+          assert.ok(child);
+          assert.equal(child.uuid(), res.get('x-span-id'));
+        });
+      done();
+    });
+  });
+
 });
