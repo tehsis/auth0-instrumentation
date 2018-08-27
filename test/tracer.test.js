@@ -115,6 +115,9 @@ describe('tracer express middleware', function() {
       app.get('/error', function(req, res) {
         res.status(500).send('error');
       });
+      app.get('/exception', function() {
+        throw new Error('expected');
+      });
     });
 
     it('should create new child spans', function(done) {
@@ -134,7 +137,7 @@ describe('tracer express middleware', function() {
         .catch(err => { done(err); });
     });
 
-    it('should set error tags on failure', function(done) {
+    it('should set error tags on status codes >= 500', function(done) {
       request(app)
         .get('/error')
         .expect(500)
@@ -151,6 +154,24 @@ describe('tracer express middleware', function() {
         .then(() => { done(); })
         .catch(err => { done(err); });
         
+    });
+
+    it('should set error tags on exceptions', function(done) {
+      request(app)
+        .get('/exception')
+        .expect(500)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          const child = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 500);
+          assert.ok(child);
+          assert.equal('/exception', child.operationName());
+          assert.equal('GET', child.tags()[$tracer.Tags.HTTP_METHOD]);
+          assert.equal($tracer.Tags.SPAN_KIND_RPC_SERVER, child.tags()[$tracer.Tags.SPAN_KIND]);
+          assert.ok(child.tags()[$tracer.Tags.ERROR]);
+        })
+        .then(() => { done(); })
+        .catch(err => { done(err); });
     });
 
     it('should include span headers in the response', function(done) {
