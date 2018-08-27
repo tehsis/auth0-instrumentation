@@ -4,11 +4,15 @@
   "description": "Instrumentation for logs, metrics, and exceptions",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ${MOCHA_ARGS}"
+    "test": "nyc --reporter=lcov mocha ${MOCHA_ARGS} --recursive",
+    "test:watch": "nyc --reporter=lcov mocha ${MOCHA_ARGS} --recursive --watch",
+    "coverage": "nyc --all mocha --recursive",
+    "lint": "eslint ./",
+    "lint:report": "eslint ./ -f checkstyle > eslint.xml"
   },
   "private": true,
   "author": "Auth0",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "auth0-common-logging": "auth0/auth0-common-logging#v2.18.0",
     "aws-kinesis-writable": "4.2.0",
@@ -32,6 +36,7 @@
     "hapi17": "npm:hapi@17.x.x",
     "mocha": "^3.0.0",
     "nsp": "^2.5.0",
+    "nyc": "^12.0.2",
     "proxyquire": "^2.0.1",
     "sinon": "^6.1.4",
     "yargs": "^9.0.1"
