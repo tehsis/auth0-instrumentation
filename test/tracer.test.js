@@ -119,7 +119,7 @@ describe('tracer express middleware', function() {
         throw new Error('expected');
       });
       app.get('/moreinfo', function(req, res) {
-        req.a0instrumentation.span.setTag('moreinfo', 'here');
+        req.a0trace.span.setTag('moreinfo', 'here');
         res.status(200).send('ok');
       });
     });
