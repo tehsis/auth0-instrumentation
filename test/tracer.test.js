@@ -118,6 +118,10 @@ describe('tracer express middleware', function() {
       app.get('/exception', function() {
         throw new Error('expected');
       });
+      app.get('/moreinfo', function(req, res) {
+        req.a0instrumentation.span.setTag('moreinfo', 'here');
+        res.status(200).send('ok');
+      });
     });
 
     it('should create new child spans', function(done) {
@@ -135,6 +139,20 @@ describe('tracer express middleware', function() {
         })
         .then(() =>  { done(); })
         .catch(err => { done(err); });
+    });
+
+    it('should make the created span available to the request', function(done) {
+      request(app)
+        .get('/moreinfo')
+        .expect(200)
+        .expect(function() {
+          const report = $mock.report();
+          assert.equal(1, report.spans.length);
+          assert.ok(report.firstSpanWithTagValue('moreinfo', 'here'));
+        })
+        .then(() => { done(); })
+        .catch(err => { done(err); });
+
     });
 
     it('should set error tags on status codes >= 500', function(done) {
