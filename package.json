@@ -4,8 +4,9 @@
   "description": "Instrumentation for logs, metrics, and exceptions",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=lcov mocha ${MOCHA_ARGS} --recursive",
-    "test:watch": "nyc --reporter=lcov mocha ${MOCHA_ARGS} --recursive --watch",
+    "test:mocha": "mocha --timeout=5000 --recursive",
+    "test": "nyc --reporter=lcov yarn test:mocha",
+    "test:watch": "nyc --reporter=lcov yarn test:mocha --watch",
     "coverage": "nyc --all mocha --recursive",
     "lint": "eslint ./",
     "lint:report": "eslint ./ -f checkstyle > eslint.xml"
@@ -32,6 +33,7 @@
     "v8-profiler-node8": "^5.7.6"
   },
   "devDependencies": {
+    "chai": "^4.1.2",
     "hapi16": "npm:hapi@16.x.x",
     "hapi17": "npm:hapi@17.x.x",
     "mocha": "^3.0.0",

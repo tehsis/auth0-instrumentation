@@ -4,17 +4,17 @@ const assert = require('assert');
 
 const keepAliveAgentRegistry = require('../../lib/logger-streams/keep-alive-agent');
 
-describe('keepAliveAgentRegistry', function() {
-  it('should generate a http agent', function() {
-    const agent = keepAliveAgentRegistry({});
-    assert(agent === keepAliveAgentRegistry({ NODE_ENV: 'test' }));
-    assert(agent.protocol === 'http:');
+describe('keepAliveAgentRegistry', function () {
+  it('should generate a http agent', function () {
+    const agent = keepAliveAgentRegistry(false);
+    assert.deepEqual(agent, keepAliveAgentRegistry(false));
+    assert.equal(agent.protocol, 'http:');
   });
 
-  it('should generate an https agent', function() {
-    const agent = keepAliveAgentRegistry({});
-    const httpsAgent = keepAliveAgentRegistry({ NODE_ENV: 'production' });
-    assert(agent !== httpsAgent);
-    assert(httpsAgent.protocol === 'https:');
+  it('should generate an https agent', function () {
+    const agent = keepAliveAgentRegistry(false);
+    const httpsAgent = keepAliveAgentRegistry(true);
+    assert.notDeepEqual(agent, httpsAgent);
+    assert.equal(httpsAgent.protocol, 'https:');
   });
 });

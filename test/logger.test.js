@@ -2,24 +2,25 @@
 
 const assert = require('assert');
 const sentry = require('../lib/error_reporter')({}, {});
-const logger = require('../lib/logger')({ name: 'test' }, 
-                                        { LOG_LEVEL: 'fatal', 
-                                          PURPOSE: 'test-purpose',
-                                          ENVIRONMENT: 'test-env',
-                                          AWS_REGION: 'test-region'
-                                        });
+const logger = require('../lib/logger')({ name: 'test' },
+  {
+    LOG_LEVEL: 'fatal',
+    PURPOSE: 'test-purpose',
+    ENVIRONMENT: 'test-env',
+    AWS_REGION: 'test-region'
+  });
 const spy = require('sinon').spy;
 
-describe('logger', function() {
-  beforeEach(function() {
+describe('logger', function () {
+  beforeEach(function () {
     sentry.captureException = spy();
     sentry.captureMessage = spy();
     sentry.captureException.resetHistory();
     sentry.captureMessage.resetHistory();
   });
 
-  describe('logger.child()', function() {
-    it('should support creating child loggers', function() {
+  describe('logger.child()', function () {
+    it('should support creating child loggers', function () {
       const childLogger = logger.child({
         child: 'child'
       });
@@ -33,7 +34,7 @@ describe('logger', function() {
       assert(sentry.captureMessage.getCall(0).args[1].extra.child, 'child');
     });
 
-    it('should support creating nested child loggers', function() {
+    it('should support creating nested child loggers', function () {
       const childLogger = logger.child({
         child: 'child'
       });
@@ -53,20 +54,20 @@ describe('logger', function() {
     });
   });
 
-  describe('SentryStream', function() {
-    it('should call captureException on error when level is error', function() {
+  describe('SentryStream', function () {
+    it('should call captureException on error when level is error', function () {
       logger.error(new Error('test'));
       assert(sentry.captureException.calledOnce);
       assert(sentry.captureMessage.calledOnce === false);
     });
 
-    it('should call captureMessage on string when level is error', function() {
+    it('should call captureMessage on string when level is error', function () {
       logger.error('test');
       assert(sentry.captureException.calledOnce === false);
       assert(sentry.captureMessage.calledOnce);
     });
 
-    it('should add a log_type tag when the log entry has an error and has a log_type property', function() {
+    it('should add a log_type tag when the log entry has an error and has a log_type property', function () {
       logger.error({
         log_type: 'uncaughtException',
         err: new Error('test err')
@@ -76,7 +77,7 @@ describe('logger', function() {
       assert(sentry.captureException.getCall(0).args[1].tags.log_type, 'uncaughtException');
     });
 
-    it('should add a log_type tag when the log entry does not have an error and has a log_type property', function() {
+    it('should add a log_type tag when the log entry does not have an error and has a log_type property', function () {
       logger.error({
         log_type: 'not really an error'
       }, 'test');
@@ -86,7 +87,7 @@ describe('logger', function() {
     });
   });
 
-  it('should add default values from environment', function() {
+  it('should add default values from environment', function () {
     logger.error('testing');
     assert(sentry.captureException.calledOnce === false);
     assert(sentry.captureMessage.calledOnce);
