@@ -1,9 +1,10 @@
-var stubs = require('./lib/stubs');
-var Logger = require('./lib/logger');
-var ErrorReporter = require('./lib/error_reporter');
-var Metrics = require('./lib/metrics');
-var Profiler = require('./lib/profiler');
-var Tracer = require('./lib/tracer');
+const stubs = require('./lib/stubs');
+const Logger = require('./lib/logger');
+const ErrorReporter = require('./lib/error_reporter');
+const Metrics = require('./lib/metrics');
+const Profiler = require('./lib/profiler');
+const Tracer = require('./lib/tracer');
+const Configuration = require('./lib/configuration');
 
 module.exports = {
   logger: stubs.logger,
@@ -13,10 +14,12 @@ module.exports = {
   tracer: stubs.tracer,
   initialized: false,
 
-  init: function(pkg, env, serializers, params) {
+  init: function (pkg, env, serializers, params) {
     if (this.initialized) { return; }
 
-    this.logger = Logger(pkg, env, serializers);
+    const configuration = Configuration.build(env);
+
+    this.logger = Logger(pkg, configuration, serializers);
     this.errorReporter = ErrorReporter(pkg, env);
     this.metrics = Metrics(pkg, env);
     this.profiler = new Profiler(this, pkg, env);
