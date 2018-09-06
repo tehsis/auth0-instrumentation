@@ -1,13 +1,9 @@
 const assert = require('chai').assert;
 
 describe('Logger Settings', () => {
-  var actual, streams;
+  var actual;
   const loggerSettings = require('../../lib/configuration/logger-settings');
-  const test = (type, env) => {
-    streams = [];
-    loggerSettings[type](streams, env);
-    actual = streams[0];
-  };
+  const test = (type, env) => actual = loggerSettings[type](env);
 
   describe('file setting file value', () => {
     var env = { LOG_LEVEL: 'warning', LOG_FILE: 'test' };
@@ -37,18 +33,32 @@ describe('Logger Settings', () => {
   });
 
   describe('web setting', () => {
-    var env = { LOG_TO_WEB_URL: 'http://test', LOG_TO_WEB_LEVEL: 'warning' };
+    var nodeEnvironment;
+    const env = { LOG_TO_WEB_URL: 'http://test', LOG_TO_WEB_LEVEL: 'warning' };
 
+    beforeEach(() => {
+      nodeEnvironment = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+    });
     beforeEach(() => test('web', env));
+    afterEach(() => process.env.NODE_ENV = nodeEnvironment);
     it('set the correct stream type', () => assert.equal(actual.type, 'web'));
     it('set the correct log level', () => assert.equal(actual.level, env.LOG_TO_WEB_LEVEL));
     it('set the web url value', () => assert.equal(actual.url, env.LOG_TO_WEB_URL));
   });
 
   describe('web setting with default log level', () => {
+    var nodeEnvironment;
     var env = { LOG_TO_WEB_URL: 'http://test' };
 
+    beforeEach(() => {
+      nodeEnvironment = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+    });
     beforeEach(() => test('web', env));
+    afterEach(() => process.env.NODE_ENV = nodeEnvironment);
     it('set the correct stream type', () => assert.equal(actual.type, 'web'));
     it('set the correct log level', () => assert.equal(actual.level, 'error'));
     it('set the web url value', () => assert.equal(actual.url, env.LOG_TO_WEB_URL));
@@ -79,18 +89,20 @@ describe('Logger Settings', () => {
   });
 
   describe('sentry setting', () => {
-    var env = { ERROR_REPORTER_LOG_LEVEL: 'warning' };
+    var env = { ERROR_REPORTER_URL: 'http://test/', ERROR_REPORTER_LOG_LEVEL: 'warning' };
 
     beforeEach(() => test('sentry', env));
     it('set the correct stream type', () => assert.equal(actual.type, 'sentry'));
-    it('set the correct AWS key', () => assert.equal(actual.level, env.ERROR_REPORTER_LOG_LEVEL));
+    it('set the correct log level', () => assert.equal(actual.level, env.ERROR_REPORTER_LOG_LEVEL));
+    it('set the sentry url value', () => assert.equal(actual.url, env.ERROR_REPORTER_URL));
   });
 
   describe('sentry setting with default log level', () => {
-    var env = {};
+    var env = { ERROR_REPORTER_URL: 'http://test/' };
 
     beforeEach(() => test('sentry', env));
     it('set the correct stream type', () => assert.equal(actual.type, 'sentry'));
-    it('set the correct AWS key', () => assert.equal(actual.level, 'error'));
+    it('set the correct log level', () => assert.equal(actual.level, 'error'));
+    it('set the sentry url value', () => assert.equal(actual.url, env.ERROR_REPORTER_URL));
   });
 });

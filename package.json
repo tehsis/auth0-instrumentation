@@ -4,8 +4,8 @@
   "description": "Instrumentation for logs, metrics, and exceptions",
   "main": "index.js",
   "scripts": {
-    "test:mocha": "mocha --timeout=5000 --recursive",
-    "test": "nyc --reporter=lcov yarn test:mocha",
+    "test:mocha": "mocha --timeout=5000 --recursive --reporter tap",
+    "test": "nyc --reporter=text-summary yarn test:mocha",
     "test:watch": "nyc --reporter=lcov yarn test:mocha --watch",
     "coverage": "nyc --all mocha --recursive",
     "lint": "eslint ./",

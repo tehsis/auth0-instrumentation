@@ -6,9 +6,7 @@ describe('fileStream', () => {
     const path = './test-path/';
     const level = 'error';
 
-    beforeEach(() => {
-      actual = require('../../lib/logger-streams/file-stream')(path, level);
-    });
+    beforeEach(() => actual = require('../../lib/logger-streams/file-stream')({ file: path, level: level }));
 
     it('should set loglevel', () => assert.equal(actual.level, level));
     it('should set path', () => assert.equal(actual.path, path));

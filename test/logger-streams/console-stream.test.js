@@ -8,7 +8,7 @@ describe('consoleStream', () => {
 
     beforeEach(() => {
       const consoleStream = require('../../lib/logger-streams/console-stream');
-      actual = consoleStream(expectedLevel);
+      actual = consoleStream({ level: 'warning' });
     });
 
     it('should set loglevel', () => assert.equal(actual.level, expectedLevel));
@@ -20,7 +20,7 @@ describe('consoleStream', () => {
 
     beforeEach(() => {
       const consoleStream = require('../../lib/logger-streams/console-stream');
-      actual = consoleStream(expectedLevel, true);
+      actual = consoleStream({ level: expectedLevel, niceFormat: true });
     });
 
     it('should set loglevel', () => assert.equal(actual.level, expectedLevel));

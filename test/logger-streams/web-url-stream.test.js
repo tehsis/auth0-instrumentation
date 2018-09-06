@@ -7,7 +7,7 @@ describe('webUrlStream', () => {
     const level = 'warning';
 
     beforeEach(() => {
-      actual = require('../../lib/logger-streams/web-url-stream')(url, level);
+      actual = require('../../lib/logger-streams/web-url-stream')({ url, level });
     });
 
     it('should set name web-url', () => assert.equal(actual.name, 'web-url'));

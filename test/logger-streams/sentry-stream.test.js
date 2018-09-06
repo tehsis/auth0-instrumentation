@@ -5,9 +5,7 @@ describe('sentryStream', () => {
     var actual;
     const level = 'error';
 
-    beforeEach(() => {
-      actual = require('../../lib/logger-streams/sentry-stream')(level);
-    });
+    beforeEach(() => actual = require('../../lib/logger-streams/sentry-stream')({ level: level, streamType: 'raw' }));
 
     it('should set name Sentry', () => assert.equal(actual.name, 'sentry'));
     it('should set loglevel', () => assert.equal(actual.level, level));

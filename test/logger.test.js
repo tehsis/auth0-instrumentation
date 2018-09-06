@@ -3,28 +3,38 @@
 'use strict';
 
 const assert = require('assert');
-const sentry = require('../lib/error_reporter')({}, {});
-const logger = require('../lib/logger')({ name: 'test' },
-  {
-    service: {
-      name: 'test',
-      channel: 'testing',
-      purpose: 'test-purpose',
-      environment: 'test-env',
-      region: 'test-region'
-    },
-    logger: {
-      streams: [{ type: 'console', level: 'fatal' }]
-    },
-    flags: {
-      isProduction: false,
-      ignoreProcessInfo: true
+const sentry = require('../lib/error_reporter')({ type: 'test', level: 'warning', streamType: 'raw' });
+const configuration = {
+  package: {
+    name: 'test'
+  },
+  service: {
+    name: 'test',
+    channel: 'testing',
+    purpose: 'test-purpose',
+    environment: 'test-env',
+    region: 'test-region'
+  },
+  logger: {
+    streams: {
+      console: { type: 'console', level: 'fatal' },
+      sentry: { type: 'sentry', level: 'fatal', reporter: sentry },
     }
-  }, {}, {});
+  },
+  flags: {
+    isProduction: false,
+    ignoreProcessInfo: true
+  }
+};
+
+
 const spy = require('sinon').spy;
 
-describe('logger', function () {
+describe.only('logger', function () {
+  var logger;
+
   beforeEach(function () {
+    logger = require('../lib/logger')(configuration, {});
     sentry.captureException = spy();
     sentry.captureMessage = spy();
     sentry.captureException.resetHistory();

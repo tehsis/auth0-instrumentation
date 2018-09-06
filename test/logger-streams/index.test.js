@@ -8,73 +8,78 @@ describe('logger-streams', () => {
       actual = require('../../lib/logger-streams');
     });
 
-    it('should have a fileStream function', () => assert.equal(actual.fileStream, require('../../lib/logger-streams/file-stream')));
-    it('should have a consoleStream function', () => assert.equal(actual.consoleStream, require('../../lib/logger-streams/console-stream')));
-    it('should have a webUrlStream function', () => assert.equal(actual.webUrlStream, require('../../lib/logger-streams/web-url-stream')));
-    it('should have a kinesisStream function', () => assert.equal(actual.kinesisStream, require('../../lib/logger-streams/kinesis-stream')));
-    it('should have a sentryStream function', () => assert.equal(actual.sentryStream, require('../../lib/logger-streams/sentry-stream')));
+    it('should have a fileStream function', () => assert.equal(actual.file, require('../../lib/logger-streams/file-stream')));
+    it('should have a consoleStream function', () => assert.equal(actual.console, require('../../lib/logger-streams/console-stream')));
+    it('should have a webUrlStream function', () => assert.equal(actual.web, require('../../lib/logger-streams/web-url-stream')));
+    it('should have a kinesisStream function', () => assert.equal(actual.kinesis, require('../../lib/logger-streams/kinesis-stream')));
+    it('should have a sentryStream function', () => assert.equal(actual.sentry, require('../../lib/logger-streams/sentry-stream')));
   });
 
   describe('getStreams', () => {
 
-    function test(agent, pkg, env) {
-      actual = require('../../lib/logger-streams').getStreams(agent, pkg, env);
+    function test(configuration) {
+      actual = require('../../lib/logger-streams').getStreams(configuration);
     }
 
-    describe('specifying FILE', () => {
-      const env = { LOG_LEVEL: 'warning', LOG_FILE: 'test' };
-      const expectedNumberOfStream = 2;
+    describe('specifying file settings', () => {
+      const streamSettings = { type: 'file', level: 'warning', file: 'test' };
+      const configuration = { logger: { streams: { file: streamSettings } } };
+      const expectedNumberOfStream = 1;
 
-      beforeEach(() => test(null, null, env));
-      it('should have the correct number of streams', () => assert.equal(actual.length, expectedNumberOfStream));
+      beforeEach(() => test(configuration));
+      it('should have the correct number of streams', () =>
+        assert.equal(Object.keys(actual).length, expectedNumberOfStream));
       it('should include a stream', () => assert.equal(actual[0].name, 'file'));
-
     });
 
-    describe('not specifying FILE', () => {
-      const env = { LOG_LEVEL: 'warning' };
-      const expectedNumberOfStream = 2;
+    describe('specifying console settings', () => {
+      const streamSettings = { type: 'console', level: 'warning' };
+      const configuration = { logger: { streams: { console: streamSettings } } };
+      const expectedNumberOfStream = 1;
 
-      beforeEach(() => test(null, null, env));
+      beforeEach(() => test(configuration));
       it('should have the correct number of streams', () => assert.equal(actual.length, expectedNumberOfStream));
       it('should include a stream', () => assert.equal(actual[0].name, 'console'));
     });
 
-    describe('not specifying FILE and Nice Formatting', () => {
-      const env = { LOG_LEVEL: 'warning', CONSOLE_NICE_FORMAT: true };
-      const expectedNumberOfStream = 2;
+    describe('specifying console settings with Nice Formatting', () => {
+      const streamSettings = { type: 'console', level: 'warning', niceFormat: true };
+      const configuration = { logger: { streams: { console: streamSettings } } };
+      const expectedNumberOfStream = 1;
 
-      beforeEach(() => test(null, null, env));
+      beforeEach(() => test(configuration));
       it('should have the correct number of streams', () => assert.equal(actual.length, expectedNumberOfStream));
       it('should include a stream', () => assert.equal(actual[0].name, 'console'));
     });
 
-    describe('is production and web URL set', () => {
-      const env = { NODE_ENV: 'production', LOG_TO_WEB_LEVEL: 'warning', LOG_TO_WEB_URL: 'http://test/' };
-      const expectedNumberOfStream = 3;
-      process.env.NODE_ENV = 'production';
+    describe('specifying web settings', () => {
+      const streamSettings = { type: 'web', level: 'warning', url: 'http://test/' };
+      const configuration = { logger: { streams: { web: streamSettings } }, flags: { isProduction: true } };
+      const expectedNumberOfStream = 1;
 
-      beforeEach(() => test(null, null, env));
+      beforeEach(() => test(configuration));
       it('should have the correct number of streams', () => assert.equal(actual.length, expectedNumberOfStream));
-      it('should include a stream', () => assert.deepEqual(actual[1].name, 'web-url'));
+      it('should include a stream', () => assert.deepEqual(actual[0].name, 'web-url'));
     });
 
     describe('log to kinesis', () => {
-      const env = { LOG_TO_KINESIS: 'test', LOG_TO_KINESIS_LEVEL: 'warning' };
-      const expectedNumberOfStream = 3;
+      const streamSettings = { type: 'kinesis', level: 'warning', streamName: 'test-stream' };
+      const configuration = { logger: { streams: { kinesis: streamSettings } }, flags: { isProduction: true } };
+      const expectedNumberOfStream = 1;
 
-      beforeEach(() => test(null, null, env));
+      beforeEach(() => test(configuration));
       it('should have the correct number of streams', () => assert.equal(actual.length, expectedNumberOfStream));
-      it('should include a stream', () => assert.equal(actual[1].name, 'kinesis'));
+      it('should include a stream', () => assert.equal(actual[0].name, 'kinesis'));
     });
 
     describe('log to sentry', () => {
-      const env = {};
-      const expectedNumberOfStream = 2;
+      const streamSettings = { type: 'sentry', level: 'warning' };
+      const configuration = { logger: { streams: { sentry: streamSettings } } };
+      const expectedNumberOfStream = 1;
 
-      beforeEach(() => test(null, null, env));
+      beforeEach(() => test(configuration));
       it('should have the correct number of streams', () => assert.equal(actual.length, expectedNumberOfStream));
-      it('should include a stream', () => assert.equal(actual[1].name, 'sentry'));
+      it('should include a stream', () => assert.equal(actual[0].name, 'sentry'));
     });
   });
 });
