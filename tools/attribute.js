@@ -3,5 +3,5 @@ var path = process.argv[3] || '../package.json';
 var attributes = require(path);
 var value = attributes[attributeName];
 if (value !== undefined) {
-  console.log(value);
+  console.log(value); // eslint-disable-line no-console
 }

@@ -4,6 +4,9 @@
     "node": true,
     "mocha": true
   },
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
   "extends": "eslint:recommended",
   "rules": {
     "indent": [
@@ -23,8 +26,15 @@
       "always"
     ],
     "no-console": [
-     "error",
-     { "allow": ["debug", "info", "warn", "error"] }
+      "error",
+      {
+        "allow": [
+          "debug",
+          "info",
+          "warn",
+          "error"
+        ]
+      }
     ]
   }
 }

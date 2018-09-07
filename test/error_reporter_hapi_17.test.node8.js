@@ -8,12 +8,12 @@ describe('error reporter with Hapi server >= v17', function () {
   var error = new Error();
   var ravenClient = { captureError: sinon.stub() };
 
-  before(async function() {
+  before(async function () {
     server = new Hapi17.Server({ port: 9876 });
     server.route({
       method: 'POST',
       path: '/niceRoute',
-      handler: async function(request) {
+      handler: async function (request) {
         request.pre._originalPayload = 42;
         throw error;
       }

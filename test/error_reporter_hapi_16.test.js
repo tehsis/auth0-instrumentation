@@ -7,13 +7,13 @@ describe('error reporter with Hapi server < v17', function () {
   var server;
   var ravenClient = { captureError: sinon.stub() };
   var error = new Error();
-  before(function(done) {
+  before(function (done) {
     server = new Hapi16.Server();
     server.connection({ port: 9879 });
     server.route({
       method: 'POST',
       path: '/niceRoute',
-      handler: function(request, reply) {
+      handler: function (request, reply) {
         request.pre._originalPayload = 42;
         reply(error);
       }
@@ -25,14 +25,14 @@ describe('error reporter with Hapi server < v17', function () {
         tags: 't1'
       }
     };
-    server.start(function(err) {
+    server.start(function (err) {
       if (err) {
         done('Failed to load Hapi plugin');
       }
       done();
     });
 
-    server.register(plugin, function(err) {
+    server.register(plugin, function (err) {
       if (err) {
         done('Failed to load Hapi plugin');
       }
@@ -44,7 +44,7 @@ describe('error reporter with Hapi server < v17', function () {
   });
 
   it('should log if a error happen in the server', function (done) {
-    var request = { method: 'POST',  url: `${server.info.uri}/niceRoute?p1=2` };
+    var request = { method: 'POST', url: `${server.info.uri}/niceRoute?p1=2` };
     server.inject(request, function (response) {
       setTimeout(function () {
         assert(500 === response.statusCode, 'expect a 500 error');
@@ -66,7 +66,7 @@ describe('error reporter with Hapi server < v17', function () {
         assert(secondParam.tags === 't1', 'tags must be t1');
 
         done();
-      }, 200)
+      }, 200);
     });
   });
 });

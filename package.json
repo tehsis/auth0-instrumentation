@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
+    "eslint": "^5.5.0",
     "hapi16": "npm:hapi@16.x.x",
     "hapi17": "npm:hapi@17.x.x",
     "mocha": "^3.0.0",

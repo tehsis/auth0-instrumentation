@@ -2,12 +2,7 @@ var assert = require('assert');
 var sinon = require('sinon');
 var $require = require('proxyquire').noPreserveCache();
 
-var metrics = require('../lib/metrics')({
-  name: 'test'
-}, {
-    STATSD_HOST: 'http://localhost:8125'
-  });
-
+var metrics = require('../lib/metrics')({ name: 'test' }, { STATSD_HOST: 'http://localhost:8125' });
 var tagUtils = require('../lib/tags');
 
 describe('metrics', function () {
@@ -108,11 +103,7 @@ describe('metrics', function () {
             return { increment: metricsSpy };
           }
         }
-      })({
-        name: 'test'
-      }, {
-          STATSD_HOST: 'http://localhost:8125'
-        });
+      })({ name: 'test' }, { STATSD_HOST: 'http://localhost:8125' });
     });
 
     describe('when called with name', function () {
@@ -141,11 +132,7 @@ describe('metrics', function () {
             return { increment: metricsSpy };
           }
         }
-      })({
-        name: 'test'
-      }, {
-          STATSD_HOST: 'http://localhost:8125'
-        });
+      })({ name: 'test' }, { STATSD_HOST: 'http://localhost:8125' });
     });
 
     it('should assign tags based on buckets', function () {
