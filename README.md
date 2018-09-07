@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/auth0/auth0-instrumentation.svg?branch=master)](https://travis-ci.org/auth0/auth0-instrumentation)
 
-The goal of this package is to make it easier to collect information about our services through logs, metrics and error catching.
+The goal of this package is to make it easier to collect information about our services through logs, metrics, tracing and error reporting.
 
 ## Logs
 
@@ -50,6 +50,83 @@ metrics.gauge('mygauge', 42, tags);
 metrics.increment('requests.served', tags); // increment by 1
 metrics.increment('some.other.thing', 5, tags); // increment by 5
 metrics.histogram('service.time', 0.248);
+```
+
+## Traces
+
+The tracing feature can be used with any backend that supports [opentracing](http://opentracing.io/).
+
+Basic Usage:
+
+```js
+var pkg = require('./package.json');
+var env = require('./lib/env');
+var agent = require('auth0-instrumentation');
+agent.init(pkg, env);
+var tracer = agent.tracer;
+
+// single span
+var span = tracer.startSpan('http_request');
+span.setTag('external_service', 'foo');
+span.finish();
+
+// function wrapper
+var parentSpan = tracer.startSpan('parent');
+tracer.captureFunc('child_operation', function(span) {
+  span.setTag('in_child', true);
+}, parentSpan);
+parentSpan.finish();
+
+// nesting
+var rootSpan = tracer.startSpan('parent');
+tracer.captureFunc('child1', function(child1) {
+  tracer.captureFunc('child2', function(child2) {
+    child2.setTag('in_child_two', true);
+  }, child1);
+}, rootSpan);
+rootSpan.finish();
+```
+
+The tracer also provides middleware for several common frameworks
+
+For expressjs
+
+```js
+var pkg = require('./package.json');
+var env = require('./lib/env');
+var agent = require('auth0-instrumentation');
+var express = require('express');
+
+agent.init(pkg, env);
+var tracer = agent.tracer;
+var app = express();
+
+// This will automatically extract any parent span from the headers
+// of incoming requests, wraps the request in a span, and will make
+// the request span available to handlers as 'req.a0trace.span'
+app.use(tracer.middleware.express);
+```
+
+For hapijs (only hapi16 is currently supported).
+
+```js
+var pkg = require('./package.json');
+var env = require('./lib/env');
+var agent = require('auth0-instrumentation');
+var hapi = require('hapi');
+
+agent.init(pkg, env);
+var tracer = agent.tracer;
+
+var server = new hapi.Server();
+
+
+// This will automatically extract any parent span from the headers
+// of incoming requests, wraps the request is a span, and will make
+// the request span available to handlers as 'req.a0trace.span'.
+// Additional child spans are automatically created for events in
+// the hapi request lifecycle.
+server.register(tracer.middleware.hapi16);
 ```
 
 ## Errors
@@ -198,7 +275,12 @@ const env = {
   'METRICS_API_KEY': undefined, // DataDog API key
   'METRICS_HOST': require('os').hostname(),
   'METRICS_PREFIX': pkg.name + '.',
-  'METRICS_FLUSH_INTERVAL': 15 // seconds
+  'METRICS_FLUSH_INTERVAL': 15, // seconds
+
+  // Tracing configuration
+  'TRACE_AGENT_CLIENT': undefined, // e.g. 'jaeger'
+  'TRACE_AGENT_HOST': 'localhost',
+  'TRACE_AGENT_PORT': 6832
 };
 ```
 

@@ -1,11 +1,11 @@
 const assert = require('assert');
-var sinon = require('sinon');
+const sinon = require('sinon');
 
-var Profiler = require('../lib/profiler');
+const Profiler = require('../lib/profiler');
 
-describe.skip('Profiler', function () {
+describe.skip('Profiler', function() {
   var profiler, agent;
-  beforeEach(function () {
+  beforeEach(function() {
     agent = {
       metrics: {
         histogram: sinon.spy()
@@ -16,30 +16,42 @@ describe.skip('Profiler', function () {
     };
     profiler = new Profiler(agent, { name: 'test' }, { HUNT_MEMORY_LEAKS: true });
     // avoid having to create workers
-    process.send = function () { };
+    sinon.replace(process, 'send', sinon.fake());
   });
 
-  afterEach(function () {
-    process.send = undefined;
+  afterEach(function() {
+    sinon.restore();
   });
 
-  describe.skip('#createThrottledSnapshot', function (done) {
-    it('should create a snapshot and log', function() {
+  describe('#createThrottledSnapshot', function() {
+    it('should create a snapshot and report', function(done) {
+      // this test can be flaky, due to slowness in writing or snapshotting.
+      this.retries(3);
+      sinon.replace(profiler, 'report', sinon.spy());
       this.timeout(3000);
-      profiler.createThrottledSnapshot('testing', () => {
-        assert.equal(agent.logger.info.calledOnce, true);
-        done();
-      });
+      profiler.createThrottledSnapshot('testing');
+      setTimeout(() => {
+        try {
+          assert(profiler.report.calledOnceWith(sinon.match.defined, sinon.match('testing')));
+          done();
+        } catch (err) {
+          done(err);
+        }
+      }, 1000);
     });
   });
 
-  describe.skip('#createProfile', function () {
-    it('should create a profile', function (done) {
+  describe('#createProfile', function() {
+    it('should create a profile', function(done) {
       this.timeout(3000);
-      profiler.createProfile(1000, function (err, path) {
-        assert.ifError(err);
-        assert(path);
-        done();
+      profiler.createProfile(1000, function(err, path) {
+        try {
+          assert.ifError(err);
+          assert(path);
+          done();
+        } catch (err) {
+          done(err);
+        }
       });
     });
   });
