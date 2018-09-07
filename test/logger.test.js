@@ -18,7 +18,7 @@ const configuration = {
   logger: {
     streams: {
       console: { type: 'console', level: 'fatal' },
-      sentry: { type: 'sentry', level: 'fatal', reporter: sentry },
+      sentry: { type: 'sentry', level: 'error' },
     }
   },
   flags: {
@@ -30,7 +30,7 @@ const configuration = {
 
 const spy = require('sinon').spy;
 
-describe.only('logger', function () {
+describe('logger', function () {
   var logger;
 
   beforeEach(function () {
