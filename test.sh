@@ -8,4 +8,4 @@ else
   TEST_FILES=$(find ./test -name "*test*.js" ! -name "*test.node8*.js")
 fi
 
-./node_modules/.bin/mocha ${TEST_FILES}
+./node_modules/.bin/mocha --exit ${TEST_FILES}
