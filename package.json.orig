@@ -35,8 +35,11 @@
     "v8-profiler-node8": "^5.7.6"
   },
   "devDependencies": {
-    "dotenv": "^6.0.0",
+<<<<<<< HEAD
     "chai": "^4.1.2",
+=======
+    "dotenv": "^6.0.0",
+>>>>>>> master
     "express": "^4.16.3",
     "eslint": "^5.5.0",
     "hapi16": "npm:hapi@16.x.x",
