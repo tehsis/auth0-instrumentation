@@ -30,6 +30,7 @@
     "v8-profiler-node8": "^5.7.6"
   },
   "devDependencies": {
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
     "hapi16": "npm:hapi@16.x.x",
     "hapi17": "npm:hapi@17.x.x",
