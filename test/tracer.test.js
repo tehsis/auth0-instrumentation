@@ -594,7 +594,20 @@ describe('trace request helper', function() {
         .on('error', (err) => {
           done(err);
         });
+    });
 
+    it('should work with request failures', function(done) {
+      const reqUrl = 'http://localhost:9999/no-such-url';
+      $wrapRequest(requestjs)(reqUrl)
+        .on('response', () => {
+          return done(new Error('unexpectedly received a response'));
+        })
+        .on('error', (_err) => {
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue($tracer.Tags.ERROR, true);
+          assert.ok(span);
+          done();
+        });
     });
 
     it('should add optional tags', function(done) {
@@ -716,6 +729,23 @@ describe('trace request helper', function() {
         assert.equal(span.uuid(), res.req.getHeader('x-span-id'));
         done();
       });
+    });
+
+    it('should work with a params object', function(done) {
+      const params = {
+        uri: $address + '/success',
+        callback: (err, res, _body) => {
+          if (err) {
+            return done(err);
+          }
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(span);
+          done();
+        }
+      };
+      $wrapRequest(requestjs)(params);
     });
   });
 });
