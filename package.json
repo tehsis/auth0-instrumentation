@@ -39,6 +39,7 @@
     "mocha": "^3.0.0",
     "nsp": "^2.5.0",
     "proxyquire": "^2.0.1",
+    "request": "^2.88.0",
     "sinon": "^6.1.4",
     "supertest": "^3.1.0",
     "yargs": "^9.0.1"
