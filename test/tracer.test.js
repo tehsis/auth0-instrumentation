@@ -564,19 +564,19 @@ describe('trace request helper', function() {
 
   describe('stream calls', function() {
     it('should wrap simple requests in a span', function(done) {
-        const reqUrl = $address + '/success';
-        $wrapRequest(requestjs)(reqUrl)
-            .on('response', (res) => {
-                assert.equal(200, res.statusCode);
-                const report = $mock.report();
-                const span = report.firstSpanWithTagValue(
-                    $tracer.Tags.HTTP_STATUS_CODE, 200);
-                assert.ok(span);
-                assert.equal('/success', span.operationName());
-                assert.equal('GET', span.tags()[$tracer.Tags.HTTP_METHOD]);
-                done();
-            })
-            .on('error', err => done(err));
+      const reqUrl = $address + '/success';
+      $wrapRequest(requestjs)(reqUrl)
+        .on('response', (res) => {
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue(
+            $tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(span);
+          assert.equal('/success', span.operationName());
+          assert.equal('GET', span.tags()[$tracer.Tags.HTTP_METHOD]);
+          done();
+        })
+        .on('error', err => done(err));
     });
 
     it('should add error tags', function(done) {
@@ -598,18 +598,18 @@ describe('trace request helper', function() {
     });
 
     it('should add optional tags', function(done) {
-    const reqUrl = $address + '/success';
-    $wrapRequest({
-            spanTags: {
-                testTag: 'testVal'
-            }
-        }, requestjs)(reqUrl)
+      const reqUrl = $address + '/success';
+      $wrapRequest({
+        spanTags: {
+          testTag: 'testVal'
+        }
+      }, requestjs)(reqUrl)
         .on('response', (res) => {
-            assert.equal(200, res.statusCode);
-            const report = $mock.report();
-            const span = report.firstSpanWithTagValue('testTag', 'testVal');
-            assert.ok(span);
-            done();
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue('testTag', 'testVal');
+          assert.ok(span);
+          done();
         })
         .on('error', err => done(err));
     });
@@ -631,6 +631,7 @@ describe('trace request helper', function() {
       const reqUrl = $address + '/success';
       $wrapRequest(requestjs.get)(reqUrl)
         .on('response', (res) => {
+          assert.equal(200, res.statusCode);
           const report = $mock.report();
           const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
           assert.ok(span);
@@ -644,6 +645,7 @@ describe('trace request helper', function() {
       const reqUrl = $address + '/success';
       $wrapRequest(requestjs)({uri: reqUrl, method: 'get'})
         .on('response', (res) => {
+          assert.equal(200, res.statusCode);
           const report = $mock.report();
           const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
           assert.ok(span);
@@ -687,18 +689,18 @@ describe('trace request helper', function() {
     it('should add specified additional tags', function(done) {
       const reqUrl = $address + '/success';
       $wrapRequest({
-          spanTags: {
-              testTag: 'testVal'
-          }
+        spanTags: {
+          testTag: 'testVal'
+        }
       }, requestjs)(reqUrl, (err, res, _body) => {
-          if (err) {
-              return done(err);
-          }
-          assert.equal(200, res.statusCode);
-          const report = $mock.report();
-          const span = report.firstSpanWithTagValue('testTag', 'testVal');
-          assert.ok(span);
-          done();
+        if (err) {
+          return done(err);
+        }
+        assert.equal(200, res.statusCode);
+        const report = $mock.report();
+        const span = report.firstSpanWithTagValue('testTag', 'testVal');
+        assert.ok(span);
+        done();
       });
     });
 
