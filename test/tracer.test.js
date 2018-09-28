@@ -6,6 +6,7 @@ const path = require('path');
 const protobuf = require('protobufjs');
 const request = require('supertest');
 const sinon = require('sinon');
+const requestjs = require('request');
 
 describe('tracer stub', function() {
   var $mock;
@@ -525,6 +526,226 @@ describe('auth0 binary format', function() {
     assert.doesNotThrow(() => { 
       const extracted = $tracer.extract($tracer.FORMAT_AUTH0_BINARY, 'bad data here');
       assert(!extracted);
+    });
+  });
+});
+
+describe('trace request helper', function() {
+  var $server;
+  var $mock;
+  var $tracer;
+  var $address;
+  var $wrapRequest;
+  before(function(done) {
+    const app = express();
+    app.get('/success', function(_req, res) {
+      res.status(200).send('ok');
+    });
+    app.get('/error', function(_req, res) {
+      res.status(500).send('error');
+    });
+    $server = require('http').createServer(app);
+    $server.listen((err) => {
+      if (err) {
+        return done(err);
+      }
+      $address = 'http://localhost:' + $server.address().port;
+      done();
+    });
+  });
+  beforeEach(function() {
+    $mock = new opentracing.MockTracer();
+    $mock.inject = function(span, format, carrier) {
+      carrier['x-span-id'] = span.uuid();
+    };
+    $tracer = require('../lib/tracer')({}, {}, {}, $mock);
+    $wrapRequest = $tracer.helpers.wrapRequest;
+  });
+
+  describe('stream calls', function() {
+    it('should wrap simple requests in a span', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest(requestjs)(reqUrl)
+        .on('response', (res) => {
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue(
+            $tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(span);
+          assert.equal('/success', span.operationName());
+          assert.equal('GET', span.tags()[$tracer.Tags.HTTP_METHOD]);
+          done();
+        })
+        .on('error', err => done(err));
+    });
+
+    it('should add error tags', function(done) {
+      const reqUrl = $address + '/error';
+      $wrapRequest(requestjs)(reqUrl)
+        .on('response', (res) => {
+          assert.equal(500, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue(
+            $tracer.Tags.HTTP_STATUS_CODE, 500);
+          assert.ok(span);
+          assert.ok(span.tags()[$tracer.Tags.ERROR]);
+          done();
+        })
+        .on('error', (err) => {
+          done(err);
+        });
+    });
+
+    it('should work with request failures', function(done) {
+      const reqUrl = 'http://localhost:9999/no-such-url';
+      $wrapRequest(requestjs)(reqUrl)
+        .on('response', () => {
+          return done(new Error('unexpectedly received a response'));
+        })
+        .on('error', (_err) => {
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue($tracer.Tags.ERROR, true);
+          assert.ok(span);
+          done();
+        });
+    });
+
+    it('should add optional tags', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest({
+        spanTags: {
+          testTag: 'testVal'
+        }
+      }, requestjs)(reqUrl)
+        .on('response', (res) => {
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue('testTag', 'testVal');
+          assert.ok(span);
+          done();
+        })
+        .on('error', err => done(err));
+    });
+
+    it('should inject the span into the request', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest(requestjs)(reqUrl)
+        .on('response', (res) => {
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(span);
+          assert.equal(span.uuid(), res.req.getHeader('x-span-id'));
+          done();
+        })
+        .on('error', err => done(err));
+    });
+
+    it('should work with method aliases', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest(requestjs.get)(reqUrl)
+        .on('response', (res) => {
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(span);
+          assert.equal('GET', span.tags()[$tracer.Tags.HTTP_METHOD]);
+          done();
+        })
+        .on('error', err => done(err));
+    });
+
+    it('should work with params object', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest(requestjs)({uri: reqUrl, method: 'get'})
+        .on('response', (res) => {
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(span);
+          assert.equal('GET', span.tags()[$tracer.Tags.HTTP_METHOD]);
+          done();
+        })
+        .on('error', err => done(err));
+    });
+  });
+
+  describe('calls with callback', function() {
+    it('should wrap spans', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest(requestjs)(reqUrl, (err, res, _body) => {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(200, res.statusCode);
+        const report = $mock.report();
+        const span = report.firstSpanWithTagValue(
+          $tracer.Tags.HTTP_STATUS_CODE, 200);
+        assert.ok(span);
+        assert.equal('/success', span.operationName());
+        done();
+      });
+    });
+
+    it('should add error tags', function(done) {
+      const reqUrl = $address + '/error';
+      $wrapRequest(requestjs)(reqUrl, (err, res, _body) => {
+        assert.equal(500, res.statusCode);
+        const report = $mock.report();
+        const span = report.firstSpanWithTagValue(
+          $tracer.Tags.HTTP_STATUS_CODE, 500);
+        assert.ok(span);
+        assert.ok(span.tags()[$tracer.Tags.ERROR]);
+        done();
+      });
+    });
+
+    it('should add specified additional tags', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest({
+        spanTags: {
+          testTag: 'testVal'
+        }
+      }, requestjs)(reqUrl, (err, res, _body) => {
+        if (err) {
+          return done(err);
+        }
+        assert.equal(200, res.statusCode);
+        const report = $mock.report();
+        const span = report.firstSpanWithTagValue('testTag', 'testVal');
+        assert.ok(span);
+        done();
+      });
+    });
+
+    it('should inject the span into the request', function(done) {
+      const reqUrl = $address + '/success';
+      $wrapRequest(requestjs)(reqUrl, (err, res, _body) => {
+        if (err) {
+          return done(err);
+        }
+        const report = $mock.report();
+        const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+        assert.ok(span);
+        assert.equal(span.uuid(), res.req.getHeader('x-span-id'));
+        done();
+      });
+    });
+
+    it('should work with a params object', function(done) {
+      const params = {
+        uri: $address + '/success',
+        callback: (err, res, _body) => {
+          if (err) {
+            return done(err);
+          }
+          assert.equal(200, res.statusCode);
+          const report = $mock.report();
+          const span = report.firstSpanWithTagValue($tracer.Tags.HTTP_STATUS_CODE, 200);
+          assert.ok(span);
+          done();
+        }
+      };
+      $wrapRequest(requestjs)(params);
     });
   });
 });

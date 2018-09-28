@@ -129,6 +129,48 @@ var server = new hapi.Server();
 server.register(tracer.middleware.hapi16);
 ```
 
+There is also a helper for wrapping outgoing requests made by
+the `requests` HTTP client library.
+
+Wrapped requests will automatically be wrapped in a span, and
+contextual information will be injected into the headers
+of outgoing requests.
+
+```js
+var pkg = require('./package.json');
+var env = require('./lib/env');
+var agent = require('auth0-instrumentation');
+var request = require('request');
+
+agent.init(pkg, env);
+var tracer = agent.tracer;
+var wrapRequest = tracer.agent.helpers.wrapRequest;
+
+// This works with 'streams'
+wrapRequest(request)('http://example.com')
+  .on('response', (res) => {
+    console.log(res.statusCode);
+  });
+
+// And callbacks.
+wrapRequest(request)('http://example.com', (err, res, body) => {
+  console.log(res.statusCode);
+});
+
+// Additional span tags and any parent context may be passed
+// as options when creating the wrapper.
+const opts = {
+  spanTags: {
+    foo: 'bar'
+  },
+  parentSpan: someSpan
+};
+wrapRequest(opts, request)('http://example.com')
+  .on('response', (res) => {
+    console.log(res.statusCode);
+  });
+```
+
 ## Errors
 
 You can use the error reporter to send exceptions to an external service. You can set it up on your app in three ways, depending on what framework is being used.
