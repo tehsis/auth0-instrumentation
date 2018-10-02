@@ -80,8 +80,6 @@ describe('Profiler', function() {
 
       it ('does not takes snapshot', () => {
         const profiler = getProfiler({ PROFILE_GC: true });
-        profiler.setupGCReporter();
-
         const createSnapshotStub = sinon.stub(profiler, 'createSnapshot');
         stats.emit('stats', { pauseMS: 1000 });
         clock.tick(6000);
@@ -91,7 +89,6 @@ describe('Profiler', function() {
       describe('and HUNT_LONG_GC is set', () => {
         it('does not take snapshot if pause <= 500', () => {
           const profiler = getProfiler({ PROFILE_GC: true, HUNT_LONG_GC: true });
-          profiler.setupGCReporter();
           stats.emit('stats', { pauseMS: 500 });
           clock.tick(6000);
           const createSnapshotStub = sinon.stub(profiler, 'createSnapshot');
@@ -101,8 +98,6 @@ describe('Profiler', function() {
         it('takes snapshot if pause > 500', () => {
           const profiler = getProfiler({ PROFILE_GC: true, HUNT_LONG_GC: true });
           const createSnapshotStub = sinon.stub(profiler, 'createSnapshot');
-
-          profiler.setupGCReporter();
           stats.emit('stats', { pauseMS: 501 });
           clock.tick(6000);
           sinon.assert.calledOnce(createSnapshotStub);
