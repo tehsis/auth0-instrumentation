@@ -1,10 +1,10 @@
 const assert = require('assert');
 const sinon = require('sinon');
-var $require = require('proxyquire').noPreserveCache();
+const $require = require('proxyquire').noPreserveCache();
 const Profiler = require('../lib/profiler');
 
 describe('Profiler', function() {
-  var profiler, agent;
+  let profiler, agent;
   beforeEach(function() {
     agent = {
       metrics: {
