@@ -2,8 +2,6 @@
 
 <!--  One sentence summary. -->
 
-[JIRA link]()
-
 ## Description
 
 <!-- Explanation of what this PR does. -->
