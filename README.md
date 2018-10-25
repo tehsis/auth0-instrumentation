@@ -296,12 +296,13 @@ These are the variables that can be used, along with their default values:
 
 const env = {
   // general configuration
+  'NODE_ENV': undefined, // If you don't set it to 'production', it will try to use http keepalive agent instead of https and you will receive a "Protocol https not supported. Expected http" error
   'CONSOLE_LOG_LEVEL': 'info', // log level for console
 
   // AWS configuration for Kinesis
   'AWS_ACCESS_KEY_ID': undefined,
   'AWS_ACCESS_KEY_SECRET': undefined,
-  'AWS_REGION': undefined
+  'AWS_REGION': undefined,
 
   // Kinesis configuration (single stream)
   'LOG_TO_KINESIS': undefined, // Kinesis stream name
@@ -325,7 +326,7 @@ const env = {
       'IS_PRIMARY': undefined // set as true for the kinesis instance you want to work as primary
 
     }
-  ]
+  ],
 
   // Error reporter configuration
   'ERROR_REPORTER_URL': undefined, // Sentry URL
