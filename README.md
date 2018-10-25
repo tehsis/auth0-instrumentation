@@ -298,6 +298,8 @@ const env = {
   // general configuration
   'NODE_ENV': undefined, // If you don't set it to 'production', it will try to use http keepalive agent instead of https and you will receive a "Protocol https not supported. Expected http" error
   'CONSOLE_LOG_LEVEL': 'info', // log level for console
+  'LOG_FILE': undefined,
+  'LOG_TO_WEB_URL': undefined,
 
   // AWS configuration for Kinesis
   'AWS_ACCESS_KEY_ID': undefined,
