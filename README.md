@@ -302,7 +302,7 @@ const env = {
   // AWS configuration for Kinesis
   'AWS_ACCESS_KEY_ID': undefined,
   'AWS_ACCESS_KEY_SECRET': undefined,
-  'AWS_REGION': undefined,
+  'AWS_REGION': undefined, // auth0-instrumentation uses 'AWS_KINESIS_REGION' and if not defined it will use 'AWS_REGION'
 
   // Kinesis configuration (single stream)
   'LOG_TO_KINESIS': undefined, // Kinesis stream name
