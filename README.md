@@ -341,7 +341,9 @@ const env = {
   'METRICS_FLUSH_INTERVAL': 15, // seconds
 
   // Tracing configuration
-  'TRACE_AGENT_CLIENT': undefined, // e.g. 'jaeger'
+  'TRACE_AGENT_API_KEY': undefined,
+  'TRACE_AGENT_CLIENT': undefined, // e.g. 'jaeger', 'lightstep'
+  'TRACE_AGENT_USE_TLS': true,
   'TRACE_AGENT_HOST': 'localhost',
   'TRACE_AGENT_PORT': 6832
 };
