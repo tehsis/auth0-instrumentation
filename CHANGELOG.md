@@ -1,11 +1,25 @@
 # Changelog
+<a name="v2.20.0"></a>
+# v2.20.0
+### Bugfix
+* Fix undefined function call when using `PROFILE_GC` and not `HUNT_MEMORY_LEAKS`
+### Feature
+* Add tracing plugin for hapi17
+* Support `url` as a synonym for `uri` when wrapping `request`
+* https://github.com/auth0/auth0-instrumentation/compare/v2.19.1...v2.20.0
+
+<a name="v2.19.1"></a>
+# v2.19.1
+### Bugfix
+* Minor fix for the stub tracer
+
 <a name="v2.19.0"></a>
 # v2.19.0
 ### Bugfix
 * Fix undefined function call when using `PROFILE_GC` and not `HUNT_MEMORY_LEAKS`
 ### Feature
 * Add HTTP request wrapper
-* https://github.com/auth0/auth0-instrumentation/compare/v2.18.0...v2.19.0
+* https://github.com/auth0/auth0-instrumentation/compare/v2.19.0...v2.19.1
 
 <a name="v2.18.0"></a>
 # v2.18.0
