@@ -25,14 +25,16 @@ module.exports = {
    * @param {object} serializers - Bunyan serializers
    * @param {object} params - Extra parameters
    */
-  init: function (pkg, env, serializers, params) {
-    if (this.initialized) { return; }
+  init: function(pkg, env, serializers, params) {
+    if (this.initialized) {
+      return;
+    }
 
     const configuration = Configuration.build(pkg, env);
 
     this.logger = Logger(configuration, serializers);
     this.errorReporter = ErrorReporter(configuration.logger.streams.sentry);
-    this.metrics = Metrics(pkg, env);
+    this.metrics = Metrics(configuration);
     this.profiler = new Profiler(this, pkg, env);
     this.tracer = Tracer(this, pkg, env);
     this.initialized = true;
