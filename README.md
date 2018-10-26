@@ -107,7 +107,10 @@ var app = express();
 app.use(tracer.middleware.express);
 ```
 
-For hapijs (only hapi16 is currently supported).
+For hapijs:
+
+Version 16 (and below)
+
 
 ```js
 var pkg = require('./package.json');
@@ -127,6 +130,63 @@ var server = new hapi.Server();
 // Additional child spans are automatically created for events in
 // the hapi request lifecycle.
 server.register(tracer.middleware.hapi16);
+```
+
+Version 17 (and above)
+```
+const pkg = require('/package.json');
+const env = require('./lib/env');
+const agent = require('auth0-instrumentation');
+var hapi = require('hapi');
+
+agent.init(pkg, env);
+const tracer = agent.tracer;
+
+const server = new hapi.Server();
+await server.register(tracer.middleware.hapi17);
+```
+
+
+There is also a helper for wrapping outgoing requests made by
+the `requests` HTTP client library.
+
+Wrapped requests will automatically be wrapped in a span, and
+contextual information will be injected into the headers
+of outgoing requests.
+
+```js
+var pkg = require('./package.json');
+var env = require('./lib/env');
+var agent = require('auth0-instrumentation');
+var request = require('request');
+
+agent.init(pkg, env);
+var tracer = agent.tracer;
+var wrapRequest = tracer.agent.helpers.wrapRequest;
+
+// This works with 'streams'
+wrapRequest(request)('http://example.com')
+  .on('response', (res) => {
+    console.log(res.statusCode);
+  });
+
+// And callbacks.
+wrapRequest(request)('http://example.com', (err, res, body) => {
+  console.log(res.statusCode);
+});
+
+// Additional span tags and any parent context may be passed
+// as options when creating the wrapper.
+const opts = {
+  spanTags: {
+    foo: 'bar'
+  },
+  parentSpan: someSpan
+};
+wrapRequest(opts, request)('http://example.com')
+  .on('response', (res) => {
+    console.log(res.statusCode);
+  });
 ```
 
 ## Errors
@@ -236,12 +296,15 @@ These are the variables that can be used, along with their default values:
 
 const env = {
   // general configuration
+  'NODE_ENV': undefined, // If you don't set it to 'production', it will try to use http keepalive agent instead of https and you will receive a "Protocol https not supported. Expected http" error
   'CONSOLE_LOG_LEVEL': 'info', // log level for console
+  'LOG_FILE': undefined,
+  'LOG_TO_WEB_URL': undefined,
 
   // AWS configuration for Kinesis
   'AWS_ACCESS_KEY_ID': undefined,
   'AWS_ACCESS_KEY_SECRET': undefined,
-  'AWS_REGION': undefined
+  'AWS_REGION': undefined, // auth0-instrumentation uses 'AWS_KINESIS_REGION' and if not defined it will use 'AWS_REGION'
 
   // Kinesis configuration (single stream)
   'LOG_TO_KINESIS': undefined, // Kinesis stream name
@@ -265,7 +328,7 @@ const env = {
       'IS_PRIMARY': undefined // set as true for the kinesis instance you want to work as primary
 
     }
-  ]
+  ],
 
   // Error reporter configuration
   'ERROR_REPORTER_URL': undefined, // Sentry URL
