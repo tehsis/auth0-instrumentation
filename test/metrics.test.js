@@ -97,7 +97,7 @@ describe('metrics', function() {
 
   });
 
-  describe('incrementOne', function() {    
+  describe('incrementOne', function() {
     var $metrics;
     var metricsSpy;
     beforeEach(function () {
@@ -115,7 +115,7 @@ describe('metrics', function() {
       });
     });
 
-    describe('when called with name', function() {      
+    describe('when called with name', function() {
       it('should call metrics.increment with name and value 1', function() {
         $metrics.incrementOne('foobar', undefined);
         sinon.assert.calledWithMatch(metricsSpy, 'foobar', 1, []);
@@ -161,6 +161,64 @@ describe('metrics', function() {
     it('should preserve existing tags', function() {
       $metrics.observeBucketed('foobar', 95, [20, 50, 100], ['tag1', 'tag2:val2']);
       sinon.assert.calledWith(metricsSpy, 'foobar', 1, sinon.match.array.contains(['le:100', 'le:Inf', 'tag1', 'tag2:val2']));
+    });
+  });
+
+  describe('flush', function() {
+    var $metrics;
+    var metricsSpy;
+
+    const buildMetrics = (config) => {
+      metricsSpy = sinon.spy();
+      $metrics = $require('../lib/metrics', {
+        './metrics_factory': {
+          create: function(){
+            return { flush: metricsSpy };
+          }
+        }
+      })({
+        name: 'test'
+      }, config);
+    };
+
+    describe('when STATSD_HOST and METRICS_API_KEY are defined', function() {
+      beforeEach(function () {
+        buildMetrics({
+          STATSD_HOST: 'http://localhost:8125',
+          METRICS_API_KEY: 'datadogkey'
+        });
+      });
+
+      it('should not call metrics.flush', function() {
+        $metrics.flush();
+        sinon.assert.notCalled(metricsSpy);
+      });
+    });
+
+    describe('when STATSD_HOST is defined and METRICS_API_KEY is undefined', function() {
+      beforeEach(function () {
+        buildMetrics({
+          STATSD_HOST: 'http://localhost:8125'
+        });
+      });
+
+      it('should not call metrics.flush', function() {
+        $metrics.flush();
+        sinon.assert.notCalled(metricsSpy);
+      });
+    });
+
+    describe('when METRICS_API_KEY is defined and STATSD_HOST is undefined', function() {
+      beforeEach(function () {
+        buildMetrics({
+          METRICS_API_KEY: 'datadogkey'
+        });
+      });
+
+      it('should call metrics.flush', function() {
+        $metrics.flush();
+        sinon.assert.called(metricsSpy);
+      });
     });
   });
 });
