@@ -1,4 +1,10 @@
 # Changelog
+<a name="v2.20.1"></a>
+# v2.20.1
+### Bugfix
+* Fix error in metrics' flush method when Datadog and StatsD are both configured 
+* https://github.com/auth0/auth0-instrumentation/compare/v2.20.0...v2.20.1
+
 <a name="v2.20.0"></a>
 # v2.20.0
 ### Bugfix
