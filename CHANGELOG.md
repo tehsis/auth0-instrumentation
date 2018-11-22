@@ -1,4 +1,10 @@
 # Changelog
+<a name="v2.21.0"></a>
+# v2.21.0
+### Feature
+* Add `region`/`environment`/`channel` tags to sentry events
+* https://github.com/auth0/auth0-instrumentation/compare/v2.20.1...v2.21.0
+
 <a name="v2.20.1"></a>
 # v2.20.1
 ### Bugfix
