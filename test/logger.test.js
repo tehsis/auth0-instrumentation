@@ -2,10 +2,11 @@
 
 const assert = require('assert');
 const sentry = require('../lib/error_reporter')({}, {});
-const logger = require('../lib/logger')({ name: 'test' }, 
-                                        { LOG_LEVEL: 'fatal', 
+const logger = require('../lib/logger')({ name: 'test' },
+                                        { LOG_LEVEL: 'fatal',
                                           PURPOSE: 'test-purpose',
                                           ENVIRONMENT: 'test-env',
+                                          RELEASE_CHANNEL: 'test-channel',
                                           AWS_REGION: 'test-region'
                                         });
 const spy = require('sinon').spy;
@@ -29,8 +30,8 @@ describe('logger', function() {
       }, 'test');
       assert(sentry.captureException.calledOnce === false);
       assert(sentry.captureMessage.calledOnce);
-      assert(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
-      assert(sentry.captureMessage.getCall(0).args[1].extra.child, 'child');
+      assert.strictEqual(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
+      assert.strictEqual(sentry.captureMessage.getCall(0).args[1].extra.child, 'child');
     });
 
     it('should support creating nested child loggers', function() {
@@ -47,9 +48,9 @@ describe('logger', function() {
       }, 'test');
       assert(sentry.captureException.calledOnce === false);
       assert(sentry.captureMessage.calledOnce);
-      assert(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
-      assert(sentry.captureMessage.getCall(0).args[1].extra.child, 'grandchild');
-      assert(sentry.captureMessage.getCall(0).args[1].extra.parent, 'child');
+      assert.strictEqual(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
+      assert.strictEqual(sentry.captureMessage.getCall(0).args[1].extra.child, 'grandchild');
+      assert.strictEqual(sentry.captureMessage.getCall(0).args[1].extra.parent, 'child');
     });
   });
 
@@ -66,6 +67,30 @@ describe('logger', function() {
       assert(sentry.captureMessage.calledOnce);
     });
 
+    it('should add standard tags when the log entry has an error', function() {
+      logger.error({
+        err: new Error('test err')
+      }, 'test');
+      assert(sentry.captureException.calledOnce);
+      assert(sentry.captureMessage.calledOnce === false);
+      assert.deepStrictEqual(sentry.captureException.getCall(0).args[1].tags, {
+        region: 'test-region',
+        environment: 'test-env',
+        channel: 'test-channel'
+      });
+    });
+
+    it('should add standard tags when the log entry does not have an error', function() {
+      logger.error('test');
+      assert(sentry.captureException.calledOnce === false);
+      assert(sentry.captureMessage.calledOnce);
+      assert.deepStrictEqual(sentry.captureMessage.getCall(0).args[1].tags, {
+        region: 'test-region',
+        environment: 'test-env',
+        channel: 'test-channel'
+      });
+    });
+
     it('should add a log_type tag when the log entry has an error and has a log_type property', function() {
       logger.error({
         log_type: 'uncaughtException',
@@ -73,7 +98,12 @@ describe('logger', function() {
       }, 'test');
       assert(sentry.captureException.calledOnce);
       assert(sentry.captureMessage.calledOnce === false);
-      assert(sentry.captureException.getCall(0).args[1].tags.log_type, 'uncaughtException');
+      assert.deepStrictEqual(sentry.captureException.getCall(0).args[1].tags, {
+        log_type: 'uncaughtException',
+        region: 'test-region',
+        environment: 'test-env',
+        channel: 'test-channel'
+      });
     });
 
     it('should add a log_type tag when the log entry does not have an error and has a log_type property', function() {
@@ -82,7 +112,12 @@ describe('logger', function() {
       }, 'test');
       assert(sentry.captureException.calledOnce === false);
       assert(sentry.captureMessage.calledOnce);
-      assert(sentry.captureMessage.getCall(0).args[1].tags.log_type, 'not really an error');
+      assert.deepStrictEqual(sentry.captureMessage.getCall(0).args[1].tags, {
+        log_type: 'not really an error',
+        region: 'test-region',
+        environment: 'test-env',
+        channel: 'test-channel'
+      });
     });
   });
 
@@ -94,6 +129,7 @@ describe('logger', function() {
     assert.equal(captured.extra.purpose, 'test-purpose');
     assert.equal(captured.extra.environment, 'test-env');
     assert.equal(captured.extra.region, 'test-region');
+    assert.equal(captured.extra.channel, 'test-channel');
   });
 
 });
