@@ -87,7 +87,7 @@ describe('tracer stub', function() {
         $tracer.captureFunc('child_operation', function() {
           throw err;
         });
-      }, 'expected');
+      }, /expected/);
       parentSpan.finish();
       const report = $mock.report();
       assert.equal(2, report.spans.length);
@@ -523,7 +523,7 @@ describe('auth0 binary format', function() {
   });
 
   it('should handle bad data', function() {
-    assert.doesNotThrow(() => { 
+    assert.doesNotThrow(() => {
       const extracted = $tracer.extract($tracer.FORMAT_AUTH0_BINARY, 'bad data here');
       assert(!extracted);
     });
